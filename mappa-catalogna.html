@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Campi Catalogna 2026 — Lunaria</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Sans+Condensed:wght@400;600;700&family=Fira+Sans:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:  #0f2952;
+  --yellow:#FFD500;
+  --pink:  #cc3366;
+  --green: #2e7d4f;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Fira Sans', sans-serif; }
+#map { width: 100%; height: 560px; }
+.map-tiles { filter: saturate(0.65) brightness(1.05); }
+.map-titlebar {
+  background: var(--navy); color: #fff;
+  padding: 10px 18px;
+  font-family: 'Fira Sans Condensed', sans-serif;
+  font-size: 13px; font-weight: 700; letter-spacing: .5px;
+  display: flex; justify-content: space-between; align-items: center;
+  border-top: 4px solid var(--navy);
+}
+.map-titlebar em { color: var(--yellow); font-style: normal; }
+.map-titlebar small { font-weight: 300; font-size: 11px; color: #8899bb; }
+.map-legend {
+  background: #fff; padding: 10px 18px;
+  border-top: 2px solid var(--yellow);
+  display: flex; flex-wrap: wrap; gap: 18px;
+  font-family: 'Fira Sans Condensed', sans-serif;
+  font-size: 11px; font-weight: 700; letter-spacing: .5px;
+  text-transform: uppercase; color: var(--navy);
+}
+.ld { display: flex; align-items: center; gap: 7px; }
+.leaflet-popup-content-wrapper {
+  border-radius: 3px; border-left: 4px solid var(--navy);
+  box-shadow: 0 6px 24px rgba(0,0,0,.22);
+  padding: 0; overflow: hidden;
+}
+.leaflet-popup-content { margin: 0 !important; width: 278px !important; }
+.pu-header { background: var(--navy); padding: 7px 14px; }
+.pu-dates {
+  font-family: 'Fira Sans Condensed', sans-serif;
+  font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--yellow); display: block;
+}
+.pu-body { padding: 11px 14px; }
+.pu-place {
+  font-family: 'Fira Sans Condensed', sans-serif;
+  font-size: 15px; font-weight: 700; color: var(--navy); margin-bottom: 2px;
+}
+.pu-region {
+  font-size: 10px; font-weight: 600; color: #999; margin-bottom: 5px;
+  font-family: 'Fira Sans Condensed', sans-serif; letter-spacing: .5px;
+  text-transform: uppercase;
+}
+.pu-work {
+  font-size: 10px; font-weight: 700; color: var(--pink);
+  text-transform: uppercase; letter-spacing: .8px; margin-bottom: 6px;
+}
+.pu-desc { font-size: 12px; color: #444; line-height: 1.55; }
+.pu-fee {
+  margin-top: 8px; font-size: 11px; font-weight: 700;
+  color: var(--navy); font-family: 'Fira Sans Condensed', sans-serif;
+}
+.pu-fee span { color: var(--green); }
+.pu-org { margin-top: 4px; font-size: 10px; color: #888; font-style: italic; }
+</style>
+</head>
+<body>
+
+<div class="map-titlebar">
+  CAMPI DI VOLONTARIATO — <em>&nbsp;CATALOGNA 2026</em>
+  <small>CAT – GEPV / Lunaria</small>
+</div>
+<div id="map" role="application" aria-label="Mappa campi Catalogna 2026"></div>
+<div class="map-legend">
+  <div class="ld">
+    <svg width="11" height="15" viewBox="0 0 11 15"><path d="M5.5 1C3 1 1 3 1 5.5c0 3.8 4.5 9 4.5 9s4.5-5.2 4.5-9C10 3 8 1 5.5 1z" fill="#2e7d4f"/><circle cx="5.5" cy="5.5" r="2.2" fill="#FFD500"/></svg>
+    Ambiente / Natura
+  </div>
+  <div class="ld">
+    <svg width="11" height="15" viewBox="0 0 11 15"><path d="M5.5 1C3 1 1 3 1 5.5c0 3.8 4.5 9 4.5 9s4.5-5.2 4.5-9C10 3 8 1 5.5 1z" fill="#cc3366"/><circle cx="5.5" cy="5.5" r="2.2" fill="#fff"/></svg>
+    Patrimonio / Archeologia
+  </div>
+  <div class="ld">
+    <svg width="11" height="15" viewBox="0 0 11 15"><path d="M5.5 1C3 1 1 3 1 5.5c0 3.8 4.5 9 4.5 9s4.5-5.2 4.5-9C10 3 8 1 5.5 1z" fill="#f39c12"/><circle cx="5.5" cy="5.5" r="2.2" fill="#fff"/></svg>
+    Teen (14-17 anni)
+  </div>
+</div>
+
+<script>
+const map = L.map('map', {
+  zoomControl: true,
+  scrollWheelZoom: false,
+  minZoom: 6, maxZoom: 14
+}).setView([41.8, 1.8], 8);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  maxZoom: 19,
+  className: 'map-tiles'
+}).addTo(map);
+
+function pinIcon(type) {
+  const colors = {
+    envi: ['#2e7d4f','#FFD500'],
+    heri: ['#cc3366','#fff'],
+    teen: ['#f39c12','#fff'],
+  };
+  const [fill, dot] = colors[type] || colors.envi;
+  const id = 'sh' + Math.random().toString(36).slice(2,6);
+  return L.divIcon({
+    className: '',
+    html: `<div style="cursor:pointer;transition:transform .15s;transform-origin:bottom center"
+      onmouseenter="this.style.transform='scale(1.3)'"
+      onmouseleave="this.style.transform='scale(1)'">
+      <svg xmlns="http://www.w3.org/2000/svg" width="26" height="34" viewBox="0 0 26 34">
+        <defs><filter id="${id}"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="rgba(0,0,0,.3)"/></filter></defs>
+        <path d="M13 2C7 2 2 7 2 13c0 8.5 11 20 11 20s11-11.5 11-20C24 7 19 2 13 2z"
+          fill="${fill}" filter="url(#${id})"/>
+        <circle cx="13" cy="13" r="5" fill="${dot}" opacity=".95"/>
+      </svg></div>`,
+    iconSize:[26,34], iconAnchor:[13,34], popupAnchor:[0,-36]
+  });
+}
+
+function mkPopup(o) {
+  const fee = o.fee ? `Fee: <span>${o.fee}</span>` : `Fee: <span>gratuita</span>`;
+  return `<div class="pu-header"><span class="pu-dates">${o.dates}</span></div>
+    <div class="pu-body">
+      <div class="pu-place">${o.place}</div>
+      <div class="pu-region">${o.region}</div>
+      <div class="pu-work">${o.work}</div>
+      <div class="pu-desc">${o.desc}</div>
+      <div class="pu-fee">${fee} · ${o.vols} volontarə · età ${o.age}</div>
+      <div class="pu-org">${o.org}</div>
+    </div>`;
+}
+
+const camps = [
+  // ── PIRENEI ──
+  {lat:42.378, lng:1.163, type:'teen',
+   place:"Vilamur — Vall de Siarb", region:"Lleida — Pirenei catalani (3 turni)",
+   dates:"29 giu – 13 lug · 15–29 lug · 1–15 ago",
+   work:"ENVI · CONS · CULT",
+   desc:"Nature Paths in the Siarb Valley: recupero di sentieri storici nei Pirenei catalani. Tre turni consecutivi per teenager. Storia, natura e lavoro all'aperto in un'area montana silenziosa.",
+   fee:"200 €", vols:15, age:"14-17", org:"CAT — GEPV"},
+
+  // ── COSTA BRAVA ──
+  {lat:41.808, lng:2.744, type:'envi',
+   place:"Sils", region:"Girona — Costa Brava",
+   dates:"1–15 agosto",
+   work:"ENVI · EDU · MANU",
+   desc:"Gestione e restauro delle zone umide protette di Sils, incluse nel Piano degli Spazi di Interesse Naturale della Catalogna. Conservazione degli habitat acquatici e sensibilizzazione ambientale.",
+   fee:"gratuita", vols:24, age:"18-29", org:"CAT — GEPV"},
+
+  {lat:41.790, lng:2.778, type:'heri',
+   place:"Vidreres", region:"Girona — Costa Brava",
+   dates:"16–30 agosto",
+   work:"ARCH · ENVI · MANU",
+   desc:"St Iscle's Castle — Looking for a Past: scavo e ricerca nel castello medievale di Sant Iscle. Due settimane tra archeologia, natura e incontri internazionali.",
+   fee:"gratuita", vols:15, age:"18-29", org:"CAT — GEPV"},
+
+  // ── TARRAGONA ──
+  {lat:40.832, lng:0.508, type:'envi',
+   place:"Jesús (Tortosa)", region:"Tarragona — Terres de l'Ebre",
+   dates:"2–16 luglio",
+   work:"ENVI · CONS",
+   desc:"Torre de Sant Antoni: manutenzione dello spazio della Torre nel comune di Jesús. Punto di incontro giovanile vicino al delta dell'Ebro e al Parco Naturale dei Ports.",
+   fee:"gratuita (ESC)", vols:15, age:"18-30", org:"CAT — ESC"},
+
+  // ── BARCELLONA PENEDÈS ──
+  {lat:41.395, lng:1.851, type:'heri',
+   place:"L'Ordal — Subirats", region:"Barcelona — Alt Penedès",
+   dates:"18 lug – 1 ago",
+   work:"CONS · CULT · ENVI",
+   desc:"Beyond the Vineyard: recupero di muretti a secco (patrimonio UNESCO) tra i vigneti del Penedès. 24 volontari internazionali, paesaggio mediterraneo, vino.",
+   fee:"gratuita", vols:24, age:"18-29", org:"CAT — GEPV"},
+
+  {lat:41.350, lng:1.849, type:'heri',
+   place:"Olesa de Bonesvalls", region:"Barcelona — Alt Penedès",
+   dates:"2–16 agosto",
+   work:"CONS · CULT · ENVI",
+   desc:"Among Vineyards and Dry Stone Walls: secondo turno di recupero dei muretti a secco UNESCO nel Penedès. Stesse tecniche tradizionali, stesso paesaggio, nuovo gruppo internazionale.",
+   fee:"gratuita", vols:24, age:"18-29", org:"CAT — GEPV"},
+];
+
+camps.forEach(c => {
+  L.marker([c.lat, c.lng], {icon: pinIcon(c.type)})
+    .addTo(map)
+    .bindPopup(mkPopup(c), {maxWidth: 300});
+});
+</script>
+</body>
+</html>
