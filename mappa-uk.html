@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Campi Regno Unito 2026 — Lunaria</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Sans+Condensed:wght@400;600;700&family=Fira+Sans:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root { --navy:#0f2952; --yellow:#FFD500; --pink:#cc3366; --green:#2e7d4f; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Fira Sans',sans-serif;}
+#map{width:100%;height:560px;}
+.map-tiles{filter:saturate(0.65) brightness(1.05);}
+.map-titlebar{background:var(--navy);color:#fff;padding:10px 18px;font-family:'Fira Sans Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;display:flex;justify-content:space-between;align-items:center;border-top:4px solid var(--navy);}
+.map-titlebar em{color:var(--yellow);font-style:normal;}
+.map-titlebar small{font-weight:300;font-size:11px;color:#8899bb;}
+.map-legend{background:#fff;padding:10px 18px;border-top:2px solid var(--yellow);display:flex;flex-wrap:wrap;gap:18px;font-family:'Fira Sans Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--navy);}
+.ld{display:flex;align-items:center;gap:7px;}
+.leaflet-popup-content-wrapper{border-radius:3px;border-left:4px solid var(--navy);box-shadow:0 6px 24px rgba(0,0,0,.22);padding:0;overflow:hidden;}
+.leaflet-popup-content{margin:0!important;width:278px!important;}
+.pu-header{background:var(--navy);padding:7px 14px;}
+.pu-dates{font-family:'Fira Sans Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--yellow);display:block;}
+.pu-body{padding:11px 14px;}
+.pu-place{font-family:'Fira Sans Condensed',sans-serif;font-size:15px;font-weight:700;color:var(--navy);margin-bottom:2px;}
+.pu-region{font-size:10px;font-weight:600;color:#999;margin-bottom:5px;font-family:'Fira Sans Condensed',sans-serif;letter-spacing:.5px;text-transform:uppercase;}
+.pu-work{font-size:10px;font-weight:700;color:var(--pink);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;}
+.pu-desc{font-size:12px;color:#444;line-height:1.55;}
+.pu-fee{margin-top:8px;font-size:11px;font-weight:700;color:var(--navy);font-family:'Fira Sans Condensed',sans-serif;}
+.pu-fee span{color:var(--green);}
+.pu-org{margin-top:4px;font-size:10px;color:#888;font-style:italic;}
+</style>
+</head>
+<body>
+<div class="map-titlebar">
+  CAMPI DI VOLONTARIATO — <em>&nbsp;REGNO UNITO 2026</em>
+  <small>Concordia UK / VAP-IVS GB / Lunaria</small>
+</div>
+<div id="map" role="application" aria-label="Mappa campi UK 2026"></div>
+<div class="map-legend">
+  <div class="ld"><svg width="11" height="15" viewBox="0 0 11 15"><path d="M5.5 1C3 1 1 3 1 5.5c0 3.8 4.5 9 4.5 9s4.5-5.2 4.5-9C10 3 8 1 5.5 1z" fill="#2e7d4f"/><circle cx="5.5" cy="5.5" r="2.2" fill="#FFD500"/></svg>Ambiente / Natura</div>
+  <div class="ld"><svg width="11" height="15" viewBox="0 0 11 15"><path d="M5.5 1C3 1 1 3 1 5.5c0 3.8 4.5 9 4.5 9s4.5-5.2 4.5-9C10 3 8 1 5.5 1z" fill="#0f2952"/><circle cx="5.5" cy="5.5" r="2.2" fill="#FFD500"/></svg>Sociale / Bambini</div>
+  <div class="ld"><svg width="11" height="15" viewBox="0 0 11 15"><path d="M5.5 1C3 1 1 3 1 5.5c0 3.8 4.5 9 4.5 9s4.5-5.2 4.5-9C10 3 8 1 5.5 1z" fill="#cc3366"/><circle cx="5.5" cy="5.5" r="2.2" fill="#fff"/></svg>Patrimonio / Festival</div>
+</div>
+
+<script>
+const map = L.map('map',{zoomControl:true,scrollWheelZoom:false,minZoom:5,maxZoom:13}).setView([52.5,-2.5],6);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',maxZoom:19,className:'map-tiles'}).addTo(map);
+
+function pinIcon(type){
+  const colors={envi:['#2e7d4f','#FFD500'],soci:['#0f2952','#FFD500'],cult:['#cc3366','#fff']};
+  const[fill,dot]=colors[type]||colors.envi;
+  const id='sh'+Math.random().toString(36).slice(2,6);
+  return L.divIcon({className:'',html:`<div style="cursor:pointer;transition:transform .15s;transform-origin:bottom center" onmouseenter="this.style.transform='scale(1.3)'" onmouseleave="this.style.transform='scale(1)'"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="34" viewBox="0 0 26 34"><defs><filter id="${id}"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="rgba(0,0,0,.3)"/></filter></defs><path d="M13 2C7 2 2 7 2 13c0 8.5 11 20 11 20s11-11.5 11-20C24 7 19 2 13 2z" fill="${fill}" filter="url(#${id})"/><circle cx="13" cy="13" r="5" fill="${dot}" opacity=".95"/></svg></div>`,iconSize:[26,34],iconAnchor:[13,34],popupAnchor:[0,-36]});
+}
+
+function mkPopup(o){
+  const fee=o.fee?`Fee: <span>${o.fee}</span>`:`Fee: <span>gratuita</span>`;
+  return `<div class="pu-header"><span class="pu-dates">${o.dates}</span></div><div class="pu-body"><div class="pu-place">${o.place}</div><div class="pu-region">${o.region}</div><div class="pu-work">${o.work}</div><div class="pu-desc">${o.desc}</div><div class="pu-fee">${fee} · ${o.vols} volontarə · età ${o.age}</div><div class="pu-org">${o.org}</div></div>`;
+}
+
+const camps=[
+  // WORCESTER — Green & Away (2 progetti aggregati)
+  {lat:52.19,lng:-2.22,type:'envi',
+   place:"Worcester — Green & Away",region:"Worcestershire, Inghilterra",
+   dates:"9 giu – 5 ago (residency e internship)",work:"ENVI · EDU · FEST",
+   desc:"Eco-festival residency in un campo rurale fuori Worcester. I volontari sono la spina dorsale dell'organizzazione per tutta l'estate: logistica, allestimenti, gestione verde. Due ruoli disponibili: residency (4 posti) e internship (2 posti).",
+   fee:"150 £",vols:"2-4",age:"18+",org:"Concordia UK"},
+
+  // SOUTHAMPTON — YMCA Fairthorne
+  {lat:50.97,lng:-1.32,type:'soci',
+   place:"YMCA Fairthorne — Southampton",region:"Hampshire, Inghilterra",
+   dates:"6 lug – 4 set",work:"KIDS · SPOR · SOCI",
+   desc:"YMCA Fairthorne Manor: vasto centro outdoor dove i volontari affiancano lo staff in attività sportive, avventura e animazione per bambini e ragazzi. Ambiente naturale immerso nella campagna dell'Hampshire.",
+   fee:"150 £",vols:4,age:"18+",org:"Concordia UK"},
+
+  // CAMP CRUSOE — YMCA Fairthorne (3 turni)
+  {lat:50.94,lng:-1.30,type:'soci',
+   place:"Camp Crusoe — YMCA Fairthorne",region:"Hampshire, Inghilterra (3 turni)",
+   dates:"19 lug – 1 ago · 1–22 ago · 19 lug – 23 ago",work:"KIDS · EDU · SOCI",
+   desc:"Camp Crusoe: tre turni consecutivi per activity leader nel campo avventura del YMCA Fairthorne. I volontari guidano attività outdoor, sviluppano competenze di leadership e lavorano con bambini in un ambiente naturale straordinario.",
+   fee:"150 £",vols:"2-3",age:"18+",org:"Concordia UK"},
+
+  // BRIGHTON — Rock Farm (teen)
+  {lat:50.82,lng:-0.14,type:'envi',
+   place:"Rock Farm — Brighton",region:"East Sussex, Inghilterra",
+   dates:"29 giu – 5 lug",work:"AGRI · ENVI · SOCI",
+   desc:"Rock Farm: volontariato agricolo e ambientale in una fattoria a carbon negativo vicino a Steyning. Produzione alimentare sostenibile, conservazione ambientale. Campo teen (16-17 anni).",
+   fee:"570 £",vols:20,age:"16-17",org:"Concordia UK"},
+
+  // BRADWELL-ON-SEA — Othona Community
+  {lat:51.73,lng:0.90,type:'envi',
+   place:"Bradwell-on-Sea — Othona Community",region:"Essex, Inghilterra",
+   dates:"10–24 agosto",work:"MANU · ENVI",
+   desc:"Othona Community: comunità laica e spirituale fondata nel 1946 sulle rive dell'estuario del Blackwater. I volontari contribuiscono alla vita quotidiana, ai lavori manuali e all'accoglienza degli ospiti.",
+   fee:"95 £",vols:6,age:"18+",org:"VAP-IVS GB"},
+
+  // TRURO — Camp Kernow (4 turni aggregati)
+  {lat:50.26,lng:-5.05,type:'soci',
+   place:"Camp Kernow — Truro",region:"Cornovaglia, Inghilterra (4 turni)",
+   dates:"16 mag – 21 ago (4 turni consecutivi)",work:"KIDS · ENVI",
+   desc:"Camp Kernow: campo avventura ambientale per bambini in Cornovaglia. Quattro turni da maggio ad agosto. I volontari affiancano i coordinatori in attività outdoor, educazione ambientale e supervisione. Uno dei pochi campi con posti disponibili da primavera.",
+   fee:"95 £",vols:"3-6",age:"18-30",org:"VAP-IVS GB"},
+
+  // TAUNTON — Buddhafield
+  {lat:51.00,lng:-3.12,type:'cult',
+   place:"Taunton — Buddhafield Festival",region:"Somerset, Inghilterra",
+   dates:"8–23 luglio",work:"FEST · CULT",
+   desc:"Buddhafield Festival: festival buddista di meditazione, yoga e arti nelle Blackdown Hills vicino a Taunton. I volontari preparano il sito, gestiscono la logistica e accolgono i 2.000 partecipanti. Un'esperienza unica tra spiritualità e vita comunitaria.",
+   fee:"95 £",vols:10,age:"18+",org:"VAP-IVS GB"},
+
+  // CHEPSTOW — Grayhill (Galles)
+  {lat:51.64,lng:-2.68,type:'cult',
+   place:"Chepstow — Grayhill Living History",region:"Monmouthshire, Galles",
+   dates:"1–19 giugno",work:"RENO · CULT · FEST",
+   desc:"Grayhill Living History Camp: tre settimane nel Galles. Le prime due settimane restauro di un paesaggio agricolo del XVII secolo come risorsa educativa. La terza settimana evento di storia vivente aperto al pubblico. Vicino alla Foresta di Dean e al Wye Valley.",
+   fee:"95 £",vols:10,age:"18+",org:"VAP-IVS GB"},
+];
+
+camps.forEach(c=>{
+  L.marker([c.lat,c.lng],{icon:pinIcon(c.type)})
+    .addTo(map)
+    .bindPopup(mkPopup(c),{maxWidth:300});
+});
+</script>
+</body>
+</html>
