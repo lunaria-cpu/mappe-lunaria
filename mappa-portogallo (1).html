@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Campi Portogallo 2026 — Lunaria</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Sans+Condensed:wght@400;600;700&family=Fira+Sans:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:  #0f2952;
+  --yellow:#FFD500;
+  --pink:  #cc3366;
+  --green: #2e7d4f;
+  --sea:   #b8d8ef;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Fira Sans', sans-serif; }
+
+.leaflet-container { background: #c9dce8 !important; }
+.map-tiles { filter: saturate(0.65) brightness(1.05); }
+#map { width: 100%; height: 560px; }
+
+.map-titlebar {
+  background: var(--navy); color: #fff;
+  padding: 10px 18px;
+  font-family: 'Fira Sans Condensed', sans-serif;
+  font-size: 13px; font-weight: 700; letter-spacing: .5px;
+  display: flex; justify-content: space-between; align-items: center;
+  border-top: 4px solid var(--navy);
+}
+.map-titlebar em { color: var(--yellow); font-style: normal; }
+.map-titlebar small { font-weight: 300; font-size: 11px; color: #8899bb; }
+
+.map-legend {
+  background: #fff; padding: 10px 18px;
+  border-top: 2px solid var(--yellow);
+  display: flex; flex-wrap: wrap; gap: 18px;
+  font-family: 'Fira Sans Condensed', sans-serif;
+  font-size: 11px; font-weight: 700; letter-spacing: .5px;
+  text-transform: uppercase; color: var(--navy);
+}
+.ld { display: flex; align-items: center; gap: 7px; }
+
+/* popup */
+.leaflet-popup-content-wrapper {
+  border-radius: 3px; border-left: 4px solid var(--navy);
+  box-shadow: 0 6px 24px rgba(0,0,0,.22);
+  padding: 0; overflow: hidden;
+}
+.leaflet-popup-content { margin: 0 !important; width: 268px !important; }
+.pu-header {
+  background: var(--navy); padding: 7px 14px;
+}
+.pu-dates {
+  font-family: 'Fira Sans Condensed', sans-serif;
+  font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--yellow); display: block;
+}
+.pu-body { padding: 11px 14px; }
+.pu-place {
+  font-family: 'Fira Sans Condensed', sans-serif;
+  font-size: 15px; font-weight: 700; color: var(--navy); margin-bottom: 2px;
+}
+.pu-region {
+  font-size: 10px; font-weight: 600; color: #999; margin-bottom: 5px;
+  font-family: 'Fira Sans Condensed', sans-serif; letter-spacing: .5px;
+  text-transform: uppercase;
+}
+.pu-work {
+  font-size: 10px; font-weight: 700; color: var(--pink);
+  text-transform: uppercase; letter-spacing: .8px; margin-bottom: 6px;
+}
+.pu-desc { font-size: 12px; color: #444; line-height: 1.55; }
+.pu-org {
+  margin-top: 8px; font-size: 10px; color: #888;
+  font-style: italic; line-height: 1.4;
+}
+</style>
+</head>
+<body>
+
+<div class="map-titlebar">
+  CAMPI DI VOLONTARIATO — <em>&nbsp;PORTOGALLO 2026</em>
+  <small>IPDJ / Lunaria</small>
+</div>
+<div id="map" role="application" aria-label="Mappa campi Portogallo 2026"></div>
+<div class="map-legend">
+  <div class="ld">
+    <svg width="11" height="15" viewBox="0 0 11 15"><path d="M5.5 1C3 1 1 3 1 5.5c0 3.8 4.5 9 4.5 9s4.5-5.2 4.5-9C10 3 8 1 5.5 1z" fill="#0f2952"/><circle cx="5.5" cy="5.5" r="2.2" fill="#FFD500"/></svg>
+    Ambiente / Natura
+  </div>
+  <div class="ld">
+    <svg width="11" height="15" viewBox="0 0 11 15"><path d="M5.5 1C3 1 1 3 1 5.5c0 3.8 4.5 9 4.5 9s4.5-5.2 4.5-9C10 3 8 1 5.5 1z" fill="#cc3366"/><circle cx="5.5" cy="5.5" r="2.2" fill="#fff"/></svg>
+    Arte / Cultura / Festival
+  </div>
+  <div class="ld">
+    <svg width="11" height="15" viewBox="0 0 11 15"><path d="M5.5 1C3 1 1 3 1 5.5c0 3.8 4.5 9 4.5 9s4.5-5.2 4.5-9C10 3 8 1 5.5 1z" fill="#2e7d4f"/><circle cx="5.5" cy="5.5" r="2.2" fill="#FFD500"/></svg>
+    Agricoltura / Heritage
+  </div>
+</div>
+
+<script>
+const map = L.map('map', {
+  zoomControl: true,
+  scrollWheelZoom: false,
+  minZoom: 6, maxZoom: 13
+}).setView([39.6, -8.1], 7);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  maxZoom: 19,
+  className: 'map-tiles'
+}).addTo(map);
+
+// Pin SVG
+function pinIcon(type) {
+  // type: 'envi' (navy), 'art' (pink), 'agri' (green)
+  const colors = {
+    envi: ['#0f2952','#FFD500'],
+    art:  ['#cc3366','#fff'],
+    agri: ['#2e7d4f','#FFD500']
+  };
+  const [fill, dot] = colors[type] || colors.envi;
+  const id = 'sh' + type + Math.random().toString(36).slice(2,5);
+  return L.divIcon({
+    className: '',
+    html: `<div style="cursor:pointer;transition:transform .15s;transform-origin:bottom center"
+      onmouseenter="this.style.transform='scale(1.3)'"
+      onmouseleave="this.style.transform='scale(1)'">
+      <svg xmlns="http://www.w3.org/2000/svg" width="26" height="34" viewBox="0 0 26 34">
+        <defs><filter id="${id}"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="rgba(0,0,0,.3)"/></filter></defs>
+        <path d="M13 2C7 2 2 7 2 13c0 8.5 11 20 11 20s11-11.5 11-20C24 7 19 2 13 2z"
+          fill="${fill}" filter="url(#${id})"/>
+        <circle cx="13" cy="13" r="5" fill="${dot}" opacity=".95"/>
+      </svg></div>`,
+    iconSize:[26,34], iconAnchor:[13,34], popupAnchor:[0,-36]
+  });
+}
+
+function mkPopup(o) {
+  return `<div class="pu-header">
+      <span class="pu-dates">${o.dates}</span>
+    </div>
+    <div class="pu-body">
+      <div class="pu-place">${o.place}</div>
+      <div class="pu-region">${o.region}</div>
+      <div class="pu-work">${o.work}</div>
+      <div class="pu-desc">${o.desc}</div>
+      <div class="pu-org">${o.org}</div>
+    </div>`;
+}
+
+const camps = [
+  // ── NORD ───────────────────────────────────────────────
+  {lat:41.50, lng:-6.28, type:'envi',
+   place:"Miranda do Douro", region:"Bragança – Parco Nat. Douro Internacional",
+   dates:"13–24 luglio",
+   work:"ENVI · ANIM · MANU",
+   desc:"Centro di accoglienza per asini e muli abbandonati o maltrattati. Cura degli animali, manutenzione del rifugio, ricostruzione muri a secco, birdbox nel Parco Natura 2000.",
+   org:"CAB – Centro de Acolhimento do Burro"},
+
+  {lat:41.90, lng:-6.77, type:'envi',
+   place:"Espinhosela – Montesinho", region:"Bragança – Parco Nazionale",
+   dates:"10–21 agosto",
+   work:"ENVI · MANU",
+   desc:"Tre percorsi naturalistici nel Parco Nazionale di Montesinho: installazione di segnaletica, tavole interpretative e interventi di sentieristica per il turismo sostenibile.",
+   org:"Associartecine"},
+
+  {lat:41.27, lng:-7.57, type:'agri',
+   place:"Sabrosa", region:"Vila Real – Alto Douro Wine Region (UNESCO)",
+   dates:"6–17 luglio",
+   work:"ARCH · MANU · CULT",
+   desc:"Valorizzazione del patrimonio culturale del paesaggio viticolo UNESCO dell'Alto Douro: laboratori, visite guidate, attività di scavo e conservazione del sito Garganta.",
+   org:"AHAS – Assoc. de História e Arqueologia de Sabrosa"},
+
+  {lat:41.01, lng:-7.78, type:'agri',
+   place:"Tarouca", region:"Viseu – Douro",
+   dates:"6–15 settembre",
+   work:"ENVI · AGRI",
+   desc:"Azioni ambientali (plogging, pulizie), agricoltura tradizionale, educazione interculturale in un comune rurale della Valle del Douro circondato da paesaggi naturali.",
+   org:"Youthvision"},
+
+  {lat:41.27, lng:-8.08, type:'agri',
+   place:"Amarante", region:"Porto – Valle del Tâmega",
+   dates:"19–30 settembre",
+   work:"ENVI · AGRI",
+   desc:"Agricoltura biologica e biodinamica con piccoli produttori del Vinho Verde. Vendemmia, pigiatura tradizionale, Fair Trade. Campo autunnale tra boschi e vigne a 60 km da Porto.",
+   org:"Equação – Cooperativa de Comércio Justo"},
+
+  {lat:41.77, lng:-8.44, type:'envi',
+   place:"Fornelos / Quinta do Minhoto", region:"Viana do Castelo – Minho",
+   dates:"11–22 luglio",
+   work:"ENVI · MANU",
+   desc:"Orto biologico comunitario ed educativo con la Quinta do Minhoto: giardino aromatico, attività con bambini e famiglie. Campo sul fiume in tenda con compostiere.",
+   org:"YUPI – Assoc. for Social and Community Development"},
+
+  {lat:41.44, lng:-8.29, type:'art',
+   place:"Guimarães – Vermil", region:"Braga – Norte",
+   dates:"20–29 luglio",
+   work:"MANU · ENVI · FEST",
+   desc:"EcoFest a Vermil: logistica del festival, preparazione pasti, sessioni di sensibilizzazione ambientale. Campo rurale a Guimarães, città Patrimonio UNESCO.",
+   org:"CAISA – Cooperativa de Artes e Intervenção Social"},
+
+  {lat:41.55, lng:-8.43, type:'envi',
+   place:"Braga", region:"Braga – Norte",
+   dates:"2–13 agosto",
+   work:"ENVI · MANU",
+   desc:"Sensibilizzazione ambientale nel distretto di Braga: educazione alla sostenibilità, interventi outdoor nel Parque da Ponte. Il campo è nel campeggio municipale in area verde.",
+   org:"SYAJ – Associação Juvenil SYnergia"},
+
+  // ── CENTRO-NORD ────────────────────────────────────────
+  {lat:40.87, lng:-8.56, type:'art',
+   place:"Avanca (Estarreja)", region:"Aveiro – Centro",
+   dates:"24 lug – 4 ago",
+   work:"MANU · FEST · CULT",
+   desc:"Allestimento di AVANCA 2026, festival internazionale di cinema e audiovisivo del Cine-Clube de Avanca: segnaletica, esposizioni, logistica workshop, accoglienza partecipanti.",
+   org:"Cine-Clube de Avanca"},
+
+  {lat:40.69, lng:-8.48, type:'envi',
+   place:"Albergaria-a-Velha", region:"Aveiro – Centro (2 turni)",
+   dates:"14–25 luglio + 2–13 settembre",
+   work:"ENVI · MANU",
+   desc:"Due turni estivi nell'area protetta della Pateira di Frossos (area umida Natura 2000): sentieri, habitat acquatici, specie vegetali invasive, mugnai d'acqua storici.",
+   org:"Charcos & Companhia / BioLiving"},
+
+  {lat:40.64, lng:-8.64, type:'envi',
+   place:"Aveiro – Oliveirinha", region:"Aveiro – Centro",
+   dates:"1–12 luglio",
+   work:"ENVI · MANU",
+   desc:"Quinta Ecológica da Moita, 14 ettari di bosco: sentieri degradati, prevenzione incendi, nest-box per uccelli, pipistrelli e insetti. Premio internazionale per sostenibilità.",
+   org:"Associação BioLiving"},
+
+  {lat:40.63, lng:-7.54, type:'envi',
+   place:"Fornos de Algodres / Maceira", region:"Guarda – Beira Alta",
+   dates:"13–24 luglio",
+   work:"ENVI · MANU",
+   desc:"Controllo di 6 specie invasive in 6 metodi diversi (estirpazione, iniezione di erbicida, falciatura, controllo biologico…). Campo di studio e azione ambientale applicata.",
+   org:"Invasive Species 3.0"},
+
+  {lat:40.90, lng:-7.93, type:'art',
+   place:"Mões – Granja (Castro Daire)", region:"Viseu – Dão-Lafões",
+   dates:"23 lug – 2 ago",
+   work:"MANU · ENVI · CULT",
+   desc:"Performances culturali (danze folkloristiche, musica), manutenzione ambientale e vita comunitaria nel villaggio rurale di Granja. Premio buone pratiche 2025.",
+   org:"Grupo Desportivo e Recreativo da Granja"},
+
+  {lat:40.11, lng:-8.24, type:'envi',
+   place:"Lousã", region:"Coimbra – Centro",
+   dates:"31 ago – 11 set",
+   work:"ENVI · MANU · RENO",
+   desc:"Pulizia e pittura di fontane storiche nella parrocchia di Ega, conservazione della biodiversità e del patrimonio culturale del comune di Lousã, a 25 km da Coimbra.",
+   org:"Activar NGO"},
+
+  {lat:40.22, lng:-8.84, type:'envi',
+   place:"Ermesinde", region:"Porto – Norte",
+   dates:"1–12 settembre",
+   work:"MANU · ART · ENVI",
+   desc:"Campo ReSound: dinamiche di gruppo, sensibilizzazione ambientale, attività artistiche e manuali. Zona urbana vicino Porto con buoni collegamenti culturali.",
+   org:"Associação Sójovem"},
+
+  // ── CENTRO-SUD ─────────────────────────────────────────
+  {lat:39.03, lng:-8.80, type:'envi',
+   place:"Salvaterra de Magos", region:"Santarém – Ribatejo (2 campi)",
+   dates:"1–12 luglio + 17–28 luglio",
+   work:"ENVI · MANU · RENO",
+   desc:"Due campi consecutivi: il primo in una scuola (spazi esterni, aule all'aperto, sicurezza), il secondo in una struttura per anziani (patii, percorsi, aree verdi). Ribatejo agricolo.",
+   org:"Dream School Action / Dream Dancing"},
+
+  {lat:38.64, lng:-8.22, type:'envi',
+   place:"Montemor-o-Novo", region:"Évora – Alentejo",
+   dates:"13–24 luglio",
+   work:"ENVI · MANU",
+   desc:"Raccolta di semi di piante autoctone per micro-riserve, riqualificazione di corsi d'acqua temporanei, educazione alla sostenibilità in territorio rurale alentejano.",
+   org:"Marca-ADL"},
+
+  // ── ALGARVE ────────────────────────────────────────────
+  {lat:37.14, lng:-8.62, type:'agri',
+   place:"Lagos – Quinta Vale da Lama", region:"Faro – Algarve",
+   dates:"17–28 settembre",
+   work:"ENVI · MANU",
+   desc:"Fattoria rigenerativa di 43 ettari vicino all'estuario di Alvor: rimboschimento post-incendio, lavori ecologici e vita comunitaria. Novas Descobertas dal 1994.",
+   org:"Novas Descobertas Association"},
+];
+
+camps.forEach(c => {
+  L.marker([c.lat, c.lng], {icon: pinIcon(c.type)})
+    .addTo(map)
+    .bindPopup(mkPopup(c), {maxWidth: 290});
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Campi Germania 2026 — Lunaria / Open Houses</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Sans+Condensed:wght@400;600;700&family=Fira+Sans:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:  #0f2952;
+  --yellow:#FFD500;
+  --pink:  #cc3366;
+  --green: #2e7d4f;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Fira Sans', sans-serif; }
+#map { width: 100%; height: 560px; }
+.map-tiles { filter: saturate(0.65) brightness(1.05); }
+
+.map-titlebar {
+  background: var(--navy); color: #fff;
+  padding: 10px 18px;
+  font-family: 'Fira Sans Condensed', sans-serif;
+  font-size: 13px; font-weight: 700; letter-spacing: .5px;
+  display: flex; justify-content: space-between; align-items: center;
+  border-top: 4px solid var(--navy);
+}
+.map-titlebar em { color: var(--yellow); font-style: normal; }
+.map-titlebar small { font-weight: 300; font-size: 11px; color: #8899bb; }
+
+.map-legend {
+  background: #fff; padding: 10px 18px;
+  border-top: 2px solid var(--yellow);
+  display: flex; flex-wrap: wrap; gap: 18px;
+  font-family: 'Fira Sans Condensed', sans-serif;
+  font-size: 11px; font-weight: 700; letter-spacing: .5px;
+  text-transform: uppercase; color: var(--navy);
+}
+.ld { display: flex; align-items: center; gap: 7px; }
+
+.leaflet-popup-content-wrapper {
+  border-radius: 3px; border-left: 4px solid var(--navy);
+  box-shadow: 0 6px 24px rgba(0,0,0,.22);
+  padding: 0; overflow: hidden;
+}
+.leaflet-popup-content { margin: 0 !important; width: 278px !important; }
+.pu-header { background: var(--navy); padding: 7px 14px; }
+.pu-dates {
+  font-family: 'Fira Sans Condensed', sans-serif;
+  font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--yellow); display: block;
+}
+.pu-body { padding: 11px 14px; }
+.pu-place {
+  font-family: 'Fira Sans Condensed', sans-serif;
+  font-size: 15px; font-weight: 700; color: var(--navy); margin-bottom: 2px;
+}
+.pu-region {
+  font-size: 10px; font-weight: 600; color: #999; margin-bottom: 5px;
+  font-family: 'Fira Sans Condensed', sans-serif; letter-spacing: .5px;
+  text-transform: uppercase;
+}
+.pu-work {
+  font-size: 10px; font-weight: 700; color: var(--pink);
+  text-transform: uppercase; letter-spacing: .8px; margin-bottom: 6px;
+}
+.pu-desc { font-size: 12px; color: #444; line-height: 1.55; }
+.pu-fee {
+  margin-top: 8px; font-size: 11px; font-weight: 700;
+  color: var(--navy); font-family: 'Fira Sans Condensed', sans-serif;
+}
+.pu-fee span { color: var(--green); }
+.pu-org { margin-top: 4px; font-size: 10px; color: #888; font-style: italic; }
+</style>
+</head>
+<body>
+
+<div class="map-titlebar">
+  CAMPI DI VOLONTARIATO — <em>&nbsp;GERMANIA 2026</em>
+  <small>Open Houses / Lunaria</small>
+</div>
+<div id="map" role="application" aria-label="Mappa campi Germania 2026"></div>
+<div class="map-legend">
+  <div class="ld">
+    <svg width="11" height="15" viewBox="0 0 11 15"><path d="M5.5 1C3 1 1 3 1 5.5c0 3.8 4.5 9 4.5 9s4.5-5.2 4.5-9C10 3 8 1 5.5 1z" fill="#0f2952"/><circle cx="5.5" cy="5.5" r="2.2" fill="#FFD500"/></svg>
+    Castelli medievali
+  </div>
+  <div class="ld">
+    <svg width="11" height="15" viewBox="0 0 11 15"><path d="M5.5 1C3 1 1 3 1 5.5c0 3.8 4.5 9 4.5 9s4.5-5.2 4.5-9C10 3 8 1 5.5 1z" fill="#cc3366"/><circle cx="5.5" cy="5.5" r="2.2" fill="#fff"/></svg>
+    Arte / Cultura / UNESCO
+  </div>
+  <div class="ld">
+    <svg width="11" height="15" viewBox="0 0 11 15"><path d="M5.5 1C3 1 1 3 1 5.5c0 3.8 4.5 9 4.5 9s4.5-5.2 4.5-9C10 3 8 1 5.5 1z" fill="#2e7d4f"/><circle cx="5.5" cy="5.5" r="2.2" fill="#FFD500"/></svg>
+    Patrimonio / Paesaggio
+  </div>
+</div>
+
+<script>
+const map = L.map('map', {
+  zoomControl: true,
+  scrollWheelZoom: false,
+  minZoom: 5, maxZoom: 14
+}).setView([51.2, 11.5], 6);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  maxZoom: 19,
+  className: 'map-tiles'
+}).addTo(map);
+
+function pinIcon(type) {
+  const colors = {
+    castle: ['#0f2952','#FFD500'],
+    art:    ['#cc3366','#fff'],
+    heri:   ['#2e7d4f','#FFD500']
+  };
+  const [fill, dot] = colors[type] || colors.castle;
+  const id = 'sh' + Math.random().toString(36).slice(2,6);
+  return L.divIcon({
+    className: '',
+    html: `<div style="cursor:pointer;transition:transform .15s;transform-origin:bottom center"
+      onmouseenter="this.style.transform='scale(1.3)'"
+      onmouseleave="this.style.transform='scale(1)'">
+      <svg xmlns="http://www.w3.org/2000/svg" width="26" height="34" viewBox="0 0 26 34">
+        <defs><filter id="${id}"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="rgba(0,0,0,.3)"/></filter></defs>
+        <path d="M13 2C7 2 2 7 2 13c0 8.5 11 20 11 20s11-11.5 11-20C24 7 19 2 13 2z"
+          fill="${fill}" filter="url(#${id})"/>
+        <circle cx="13" cy="13" r="5" fill="${dot}" opacity=".95"/>
+      </svg></div>`,
+    iconSize:[26,34], iconAnchor:[13,34], popupAnchor:[0,-36]
+  });
+}
+
+function mkPopup(o) {
+  const fee = o.fee ? `Fee: <span>${o.fee} €</span>` : `Fee: <span>gratuita</span>`;
+  return `<div class="pu-header">
+      <span class="pu-dates">${o.dates}</span>
+    </div>
+    <div class="pu-body">
+      <div class="pu-place">${o.place}</div>
+      <div class="pu-region">${o.region}</div>
+      <div class="pu-work">${o.work}</div>
+      <div class="pu-desc">${o.desc}</div>
+      <div class="pu-fee">${fee} · ${o.vols} volontarə</div>
+      <div class="pu-org">${o.org}</div>
+    </div>`;
+}
+
+const camps = [
+  {lat:51.414, lng:10.632, type:'castle',
+   place:"Burg Lohra", region:"Turingia settentrionale — 7 turni luglio–ottobre",
+   dates:"5 luglio → 9 ottobre (turni da 2 settimane)",
+   work:"RENO · CONS · MANU · PRESIDIO",
+   desc:"Uno dei castelli medievali più caratteristici della Turingia. Sette turni disponibili: presidio (gratuito, 14 posti), conservazione delle strutture lignee dei tetti (100 €, 10 posti), ruoli di camp leader e technical leader (gratuiti, esperienza richiesta).",
+   fee:"", vols:"14 per turno",
+   org:"Open Houses — European Heritage Volunteers"},
+
+  {lat:50.272, lng:7.650, type:'castle',
+   place:"Marksburg", region:"Reno medio — Braubach",
+   dates:"19 luglio → 1 agosto",
+   work:"ARCH · CONS",
+   desc:"L'unico castello collinare del Reno medio sopravvissuto intatto al Medioevo. Scavi archeologici e conservazione della zona difensiva esterna. Alloggio nel vicino Castello Phillipsburg.",
+   fee:"100", vols:"14",
+   org:"Open Houses — European Heritage Volunteers"},
+
+  {lat:51.209, lng:10.460, type:'castle',
+   place:"Mühlhausen", region:"Turingia — città imperiale medievale",
+   dates:"2–15 agosto",
+   work:"CONS · RENO",
+   desc:"Restauro di edifici medievali a graticcio usando tecniche tradizionali in argilla. Una delle città medievali meglio conservate della Germania. Alloggio nella foresteria ricavata nelle mura storiche.",
+   fee:"150", vols:"10",
+   org:"Open Houses — European Heritage Volunteers"},
+
+  {lat:49.809, lng:12.432, type:'castle',
+   place:"Geschichtspark Bärnau-Tachov", region:"Baviera — confine ceco",
+   dates:"2–15 agosto",
+   work:"CONS · RENO",
+   desc:"Il più grande museo medievale a cielo aperto della Germania. I volontarə partecipano alla costruzione di un castello del XIV secolo usando tecniche e materiali dell'epoca. Alloggio in tende nel parco.",
+   fee:"150", vols:"14",
+   org:"Open Houses — European Heritage Volunteers"},
+
+  {lat:51.155, lng:11.804, type:'art',
+   place:"Cattedrale di Naumburg", region:"Sassonia-Anhalt — UNESCO",
+   dates:"19 luglio → 1 agosto",
+   work:"ARCH · RENO · CULT",
+   desc:"Uno dei monumenti più importanti dell'Alto Medioevo europeo, iscritto UNESCO nel 2018. Documentazione e conservazione del cimitero storico annesso alla cattedrale.",
+   fee:"100", vols:"10",
+   org:"Open Houses — European Heritage Volunteers"},
+
+  {lat:50.784, lng:13.821, type:'art',
+   place:"Schloss Lauenstein", region:"Sassonia — Erzgebirge UNESCO",
+   dates:"19 luglio → 1 agosto",
+   work:"RENO · ART · CULT",
+   desc:"Conservazione e restauro di affreschi e stucchi storici nel castello di Lauenstein, nelle Montagne del Minerale UNESCO. Alloggio nel castello stesso.",
+   fee:"150", vols:"12",
+   org:"Open Houses — European Heritage Volunteers"},
+
+  {lat:50.993, lng:13.361, type:'heri',
+   place:"Reinsberg", region:"Sassonia — Erzgebirge UNESCO",
+   dates:"16–29 agosto",
+   work:"CONS · RENO",
+   desc:"Conservazione di 300 metri del canale Grabentour, sistema idraulico minerario storico nel Patrimonio UNESCO Erzgebirge. Paesaggio di foreste e valli tra Germania e Cechia.",
+   fee:"100", vols:"14",
+   org:"Open Houses — European Heritage Volunteers"},
+
+  {lat:50.638, lng:12.817, type:'heri',
+   place:"Niederzwönitz", region:"Sassonia — Montagne del Minerale",
+   dates:"30 agosto → 12 settembre",
+   work:"CONS · RENO · CULT",
+   desc:"Cartiera documentata dal XVI secolo: conservazione dei sistemi idraulici e meccanici storici. Alloggio in un rifugio nella foresta.",
+   fee:"100", vols:"14",
+   org:"Open Houses — European Heritage Volunteers"},
+
+  {lat:51.019, lng:14.750, type:'art',
+   place:"Herrnhut", region:"Sassonia — Lausitz",
+   dates:"16–29 agosto",
+   work:"RENO · CONS · CULT",
+   desc:"Il cimitero della Chiesa Morava (1722): tutte le lapidi sono identiche, senza distinzione di rango. Documentazione e manutenzione di un luogo di storia religiosa e sociale unico in Europa.",
+   fee:"100", vols:"14",
+   org:"Open Houses — European Heritage Volunteers"},
+
+  {lat:51.016, lng:11.426, type:'art',
+   place:"Weimar", region:"Turingia — UNESCO",
+   dates:"30 agosto → 12 settembre",
+   work:"CONS · RENO",
+   desc:"Giardini storici del parco di Belvedere, Patrimonio UNESCO della Weimar Classica. Conservazione dei muri a secco e restauro dei percorsi storici. Alloggio nella residenza del poeta Wieland.",
+   fee:"100", vols:"14",
+   org:"Open Houses — European Heritage Volunteers"},
+
+  {lat:48.454, lng:8.417, type:'heri',
+   place:"Freudenstadt — Waldlust Hotel", region:"Baden-Württemberg — Foresta Nera",
+   dates:"19 luglio → 1 agosto",
+   work:"RENO · ENVI · CONS",
+   desc:"Parco storico del Waldlust Hotel (1899), uno dei grandi alberghi termali della Foresta Nera. Paesaggismo storico e recupero degli spazi verdi. Alloggio nelle stanze restaurate dell'hotel.",
+   fee:"100", vols:"14",
+   org:"Open Houses — European Heritage Volunteers"},
+];
+
+camps.forEach(c => {
+  L.marker([c.lat, c.lng], {icon: pinIcon(c.type)})
+    .addTo(map)
+    .bindPopup(mkPopup(c), {maxWidth: 300});
+});
+</script>
+</body>
+</html>
