@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Campi Finlandia e Svezia 2026 — Lunaria</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Sans+Condensed:wght@400;600;700&family=Fira+Sans:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:  #0f2952;
+  --yellow:#FFD500;
+  --pink:  #cc3366;
+  --green: #2e7d4f;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Fira Sans', sans-serif; }
+#map { width: 100%; height: 560px; }
+.map-tiles { filter: saturate(0.65) brightness(1.05); }
+.map-titlebar {
+  background: var(--navy); color: #fff;
+  padding: 10px 18px;
+  font-family: 'Fira Sans Condensed', sans-serif;
+  font-size: 13px; font-weight: 700; letter-spacing: .5px;
+  display: flex; justify-content: space-between; align-items: center;
+  border-top: 4px solid var(--navy);
+}
+.map-titlebar em { color: var(--yellow); font-style: normal; }
+.map-titlebar small { font-weight: 300; font-size: 11px; color: #8899bb; }
+.map-legend {
+  background: #fff; padding: 10px 18px;
+  border-top: 2px solid var(--yellow);
+  display: flex; flex-wrap: wrap; gap: 18px;
+  font-family: 'Fira Sans Condensed', sans-serif;
+  font-size: 11px; font-weight: 700; letter-spacing: .5px;
+  text-transform: uppercase; color: var(--navy);
+}
+.ld { display: flex; align-items: center; gap: 7px; }
+.leaflet-popup-content-wrapper {
+  border-radius: 3px; border-left: 4px solid var(--navy);
+  box-shadow: 0 6px 24px rgba(0,0,0,.22);
+  padding: 0; overflow: hidden;
+}
+.leaflet-popup-content { margin: 0 !important; width: 278px !important; }
+.pu-header { background: var(--navy); padding: 7px 14px; }
+.pu-dates {
+  font-family: 'Fira Sans Condensed', sans-serif;
+  font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--yellow); display: block;
+}
+.pu-body { padding: 11px 14px; }
+.pu-place {
+  font-family: 'Fira Sans Condensed', sans-serif;
+  font-size: 15px; font-weight: 700; color: var(--navy); margin-bottom: 2px;
+}
+.pu-region {
+  font-size: 10px; font-weight: 600; color: #999; margin-bottom: 5px;
+  font-family: 'Fira Sans Condensed', sans-serif; letter-spacing: .5px;
+  text-transform: uppercase;
+}
+.pu-work {
+  font-size: 10px; font-weight: 700; color: var(--pink);
+  text-transform: uppercase; letter-spacing: .8px; margin-bottom: 6px;
+}
+.pu-desc { font-size: 12px; color: #444; line-height: 1.55; }
+.pu-fee {
+  margin-top: 8px; font-size: 11px; font-weight: 700;
+  color: var(--navy); font-family: 'Fira Sans Condensed', sans-serif;
+}
+.pu-fee span { color: var(--green); }
+.pu-org { margin-top: 4px; font-size: 10px; color: #888; font-style: italic; }
+</style>
+</head>
+<body>
+
+<div class="map-titlebar">
+  CAMPI DI VOLONTARIATO — <em>&nbsp;FINLANDIA E SVEZIA 2026</em>
+  <small>Allianssi / Lunaria</small>
+</div>
+<div id="map" role="application" aria-label="Mappa campi Finlandia e Svezia 2026"></div>
+<div class="map-legend">
+  <div class="ld">
+    <svg width="11" height="15" viewBox="0 0 11 15"><path d="M5.5 1C3 1 1 3 1 5.5c0 3.8 4.5 9 4.5 9s4.5-5.2 4.5-9C10 3 8 1 5.5 1z" fill="#2e7d4f"/><circle cx="5.5" cy="5.5" r="2.2" fill="#FFD500"/></svg>
+    Ambiente / Natura
+  </div>
+  <div class="ld">
+    <svg width="11" height="15" viewBox="0 0 11 15"><path d="M5.5 1C3 1 1 3 1 5.5c0 3.8 4.5 9 4.5 9s4.5-5.2 4.5-9C10 3 8 1 5.5 1z" fill="#cc3366"/><circle cx="5.5" cy="5.5" r="2.2" fill="#fff"/></svg>
+    Festival / Cultura
+  </div>
+  <div class="ld">
+    <svg width="11" height="15" viewBox="0 0 11 15"><path d="M5.5 1C3 1 1 3 1 5.5c0 3.8 4.5 9 4.5 9s4.5-5.2 4.5-9C10 3 8 1 5.5 1z" fill="#0f2952"/><circle cx="5.5" cy="5.5" r="2.2" fill="#FFD500"/></svg>
+    Sociale / Bambini
+  </div>
+</div>
+
+<script>
+const map = L.map('map', {
+  zoomControl: true,
+  scrollWheelZoom: false,
+  minZoom: 4, maxZoom: 13
+}).setView([61.5, 24.0], 5);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+  maxZoom: 19,
+  className: 'map-tiles'
+}).addTo(map);
+
+function pinIcon(type) {
+  const colors = {
+    envi: ['#2e7d4f','#FFD500'],
+    cult: ['#cc3366','#fff'],
+    soci: ['#0f2952','#FFD500'],
+  };
+  const [fill, dot] = colors[type] || colors.envi;
+  const id = 'sh' + Math.random().toString(36).slice(2,6);
+  return L.divIcon({
+    className: '',
+    html: `<div style="cursor:pointer;transition:transform .15s;transform-origin:bottom center"
+      onmouseenter="this.style.transform='scale(1.3)'"
+      onmouseleave="this.style.transform='scale(1)'">
+      <svg xmlns="http://www.w3.org/2000/svg" width="26" height="34" viewBox="0 0 26 34">
+        <defs><filter id="${id}"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="rgba(0,0,0,.3)"/></filter></defs>
+        <path d="M13 2C7 2 2 7 2 13c0 8.5 11 20 11 20s11-11.5 11-20C24 7 19 2 13 2z"
+          fill="${fill}" filter="url(#${id})"/>
+        <circle cx="13" cy="13" r="5" fill="${dot}" opacity=".95"/>
+      </svg></div>`,
+    iconSize:[26,34], iconAnchor:[13,34], popupAnchor:[0,-36]
+  });
+}
+
+function mkPopup(o) {
+  const fee = o.fee ? `Fee: <span>${o.fee}</span>` : `Fee: <span>gratuita</span>`;
+  return `<div class="pu-header"><span class="pu-dates">${o.dates}</span></div>
+    <div class="pu-body">
+      <div class="pu-place">${o.place}</div>
+      <div class="pu-region">${o.region}</div>
+      <div class="pu-work">${o.work}</div>
+      <div class="pu-desc">${o.desc}</div>
+      <div class="pu-fee">${fee} · ${o.vols} volontarə · età ${o.age}</div>
+      <div class="pu-org">${o.org}</div>
+    </div>`;
+}
+
+const camps = [
+  {lat:60.24, lng:23.72, type:'envi',
+   place:"Karjalohja", region:"Uusimaa — 85 km da Helsinki",
+   dates:"26 apr – 9 mag", work:"ENVI · AGRI",
+   desc:"Nut Orchards: vivaio di noci e noccioli. Preparazione aiuole, trapianto, pacciamatura, invasatura. Lavoro agricolo in un villaggio rurale.",
+   fee:"gratuita", vols:8, age:"18+", org:"Allianssi"},
+
+  {lat:60.17, lng:24.94, type:'cult',
+   place:"Helsinki", region:"Finlandia meridionale",
+   dates:"12–20 maggio", work:"ENVI · FEST",
+   desc:"World Village Festival: il più grande festival mondiale sulla solidarietà internazionale. Gestione rifiuti, sostenibilità, logistica.",
+   fee:"gratuita", vols:5, age:"18+", org:"Allianssi"},
+
+  {lat:60.29, lng:25.04, type:'soci',
+   place:"Vantaa", region:"Area metropolitana Helsinki",
+   dates:"1–17 giugno", work:"SOCI · KIDS",
+   desc:"Leinikki: bike café comunitario nel quartiere di Simonkylä. Distribuzione bevande gratuite agli abitanti, attività di comunità.",
+   fee:"gratuita", vols:5, age:"18+", org:"Allianssi"},
+
+  {lat:61.03, lng:24.44, type:'soci',
+   place:"Hämeenlinna", region:"Kanta-Häme — Finlandia meridionale",
+   dates:"29 mag – 12 giu", work:"SOCI · KIDS",
+   desc:"Lake Summer: assistenti educatori in un campo estivo per bambini. Attività all'aperto in un'area rurale vicino a un lago.",
+   fee:"gratuita", vols:3, age:"18+", org:"Allianssi"},
+
+  {lat:60.87, lng:21.70, type:'envi',
+   place:"Laitila", region:"Varsinais-Suomi — Finlandia sud-ovest",
+   dates:"12–25 luglio", work:"ENVI · CULT",
+   desc:"Tipula: restauro e pittura di edifici storici nel villaggio di Tipula. Rimozione specie invasive, giardinaggio, attività culturali serali.",
+   fee:"gratuita", vols:10, age:"18+", org:"Allianssi"},
+
+  {lat:60.47, lng:24.81, type:'envi',
+   place:"Nummijärvi", region:"Uusimaa — Finlandia meridionale",
+   dates:"2–16 agosto", work:"ENVI · CULT",
+   desc:"Alpo Savannah: pulizia ambientale della savana di Alpo, separazione dei rifiuti, recupero materiali. Vita comunitaria in contesto rurale.",
+   fee:"gratuita", vols:7, age:"18+", org:"Allianssi"},
+
+  {lat:60.88, lng:22.41, type:'soci',
+   place:"Yläne", region:"Varsinais-Suomi — Finlandia occidentale",
+   dates:"8–16 agosto", work:"ENVI · EDU",
+   desc:"Nature School: progettazione di attività tipo escape room per bambini e ragazzi 10-15 anni, a contatto con la natura. Laghi e foreste.",
+   fee:"gratuita", vols:9, age:"18+", org:"Allianssi"},
+
+  {lat:61.69, lng:27.27, type:'cult',
+   place:"Mikkeli", region:"Etelä-Savo — lago Saimaa",
+   dates:"9–20 agosto", work:"CONS · FEST",
+   desc:"DinosauRock: costruzione del festival musicale dal basso. Allestimento strutture, logistica e presidio durante l'evento sul lago Saimaa.",
+   fee:"gratuita", vols:8, age:"20+", org:"Allianssi"},
+
+  {lat:63.37, lng:27.39, type:'envi',
+   place:"Lapinlahti", region:"Pohjois-Savo — Finlandia settentrionale",
+   dates:"16–29 agosto", work:"RENO · ENVI",
+   desc:"Lastu: pittura di edifici storici in legno con vernice tradizionale preparata da ingredienti base. Patrimonio rurale della Savonia.",
+   fee:"gratuita", vols:9, age:"18+", org:"Allianssi"},
+
+  {lat:62.76, lng:26.69, type:'cult',
+   place:"Kerkonkoski", region:"Keski-Suomi — Finlandia centrale",
+   dates:"23 ago – 2 set", work:"FEST · CULT",
+   desc:"Venetians in North Savonia: celebrazione tradizionale di fine estate con falò e luci sull'acqua. Un villaggio circondato da corsi d'acqua.",
+   fee:"gratuita", vols:5, age:"18+", org:"Allianssi"},
+  // ── SVEZIA ──
+  {lat:58.72, lng:11.33, type:'envi',
+   place:"Tanumshede", region:"Västra Götaland — Costa occidentale, Svezia",
+   dates:"14–27 giugno", work:"ENVI · CULT",
+   desc:"WHV Rock Carvings: manutenzione del verde attorno alle incisioni rupestri dell'Età del Bronzo di Tanum (UNESCO). Lavoro all'aperto, foreste e laghi nei dintorni.",
+   fee:"50 €", vols:8, age:"18-30", org:"Allianssi"},
+];
+
+camps.forEach(c => {
+  L.marker([c.lat, c.lng], {icon: pinIcon(c.type)})
+    .addTo(map)
+    .bindPopup(mkPopup(c), {maxWidth: 300});
+});
+</script>
+</body>
+</html>
