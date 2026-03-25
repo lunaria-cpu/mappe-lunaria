@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Campi Repubblica Ceca 2026 — Lunaria</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Sans+Condensed:wght@400;600;700&family=Fira+Sans:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0f2952;--yellow:#FFD500;--pink:#cc3366;--green:#2e7d4f;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Fira Sans',sans-serif;}
+#map{width:100%;height:560px;}
+.map-tiles{filter:saturate(0.65) brightness(1.05);}
+.map-titlebar{background:var(--navy);color:#fff;padding:10px 18px;font-family:'Fira Sans Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;display:flex;justify-content:space-between;align-items:center;border-top:4px solid var(--navy);}
+.map-titlebar em{color:var(--yellow);font-style:normal;}
+.map-titlebar small{font-weight:300;font-size:11px;color:#8899bb;}
+.map-legend{background:#fff;padding:10px 18px;border-top:2px solid var(--yellow);display:flex;flex-wrap:wrap;gap:18px;font-family:'Fira Sans Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--navy);}
+.ld{display:flex;align-items:center;gap:7px;}
+.leaflet-popup-content-wrapper{border-radius:3px;border-left:4px solid var(--navy);box-shadow:0 6px 24px rgba(0,0,0,.22);padding:0;overflow:hidden;}
+.leaflet-popup-content{margin:0!important;width:278px!important;}
+.pu-header{background:var(--navy);padding:7px 14px;}
+.pu-dates{font-family:'Fira Sans Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--yellow);display:block;}
+.pu-body{padding:11px 14px;}
+.pu-place{font-family:'Fira Sans Condensed',sans-serif;font-size:15px;font-weight:700;color:var(--navy);margin-bottom:2px;}
+.pu-region{font-size:10px;font-weight:600;color:#999;margin-bottom:5px;font-family:'Fira Sans Condensed',sans-serif;letter-spacing:.5px;text-transform:uppercase;}
+.pu-work{font-size:10px;font-weight:700;color:var(--pink);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;}
+.pu-desc{font-size:12px;color:#444;line-height:1.55;}
+.pu-fee{margin-top:8px;font-size:11px;font-weight:700;color:var(--navy);font-family:'Fira Sans Condensed',sans-serif;}
+.pu-fee span{color:var(--green);}
+</style>
+</head>
+<body>
+<div class="map-titlebar">
+  CAMPI DI VOLONTARIATO — <em>&nbsp;REPUBBLICA CECA 2026</em>
+  <small>SDA / Lunaria</small>
+</div>
+<div id="map" role="application" aria-label="Mappa campi Repubblica Ceca 2026"></div>
+<div class="map-legend">
+  <div class="ld"><svg width="11" height="15" viewBox="0 0 11 15"><path d="M5.5 1C3 1 1 3 1 5.5c0 3.8 4.5 9 4.5 9s4.5-5.2 4.5-9C10 3 8 1 5.5 1z" fill="#2e7d4f"/><circle cx="5.5" cy="5.5" r="2.2" fill="#FFD500"/></svg>Ambiente / Natura</div>
+  <div class="ld"><svg width="11" height="15" viewBox="0 0 11 15"><path d="M5.5 1C3 1 1 3 1 5.5c0 3.8 4.5 9 4.5 9s4.5-5.2 4.5-9C10 3 8 1 5.5 1z" fill="#cc3366"/><circle cx="5.5" cy="5.5" r="2.2" fill="#fff"/></svg>Patrimonio / Cultura</div>
+  <div class="ld"><svg width="11" height="15" viewBox="0 0 11 15"><path d="M5.5 1C3 1 1 3 1 5.5c0 3.8 4.5 9 4.5 9s4.5-5.2 4.5-9C10 3 8 1 5.5 1z" fill="#0f2952"/><circle cx="5.5" cy="5.5" r="2.2" fill="#FFD500"/></svg>Sociale / Bambini</div>
+</div>
+
+<script>
+const map=L.map('map',{zoomControl:true,scrollWheelZoom:false,minZoom:6,maxZoom:14}).setView([49.8,15.5],7);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',maxZoom:19,className:'map-tiles'}).addTo(map);
+
+function pinIcon(type){
+  const colors={envi:['#2e7d4f','#FFD500'],heri:['#cc3366','#fff'],soci:['#0f2952','#FFD500']};
+  const[fill,dot]=colors[type]||colors.envi;
+  const id='sh'+Math.random().toString(36).slice(2,6);
+  return L.divIcon({className:'',html:`<div style="cursor:pointer;transition:transform .15s;transform-origin:bottom center" onmouseenter="this.style.transform='scale(1.3)'" onmouseleave="this.style.transform='scale(1)'"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="34" viewBox="0 0 26 34"><defs><filter id="${id}"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="rgba(0,0,0,.3)"/></filter></defs><path d="M13 2C7 2 2 7 2 13c0 8.5 11 20 11 20s11-11.5 11-20C24 7 19 2 13 2z" fill="${fill}" filter="url(#${id})"/><circle cx="13" cy="13" r="5" fill="${dot}" opacity=".95"/></svg></div>`,iconSize:[26,34],iconAnchor:[13,34],popupAnchor:[0,-36]});
+}
+
+function mkPopup(o){
+  const fee=o.fee?`Fee: <span>${o.fee}</span>`:`Fee: <span>gratuita (ESC)</span>`;
+  return `<div class="pu-header"><span class="pu-dates">${o.dates}</span></div><div class="pu-body"><div class="pu-place">${o.place}</div><div class="pu-region">${o.region}</div><div class="pu-work">${o.work}</div><div class="pu-desc">${o.desc}</div><div class="pu-fee">${fee} · ${o.vols} volontarə · età ${o.age}</div></div>`;
+}
+
+const camps=[
+  // BOEMIA OCCIDENTALE
+  {lat:50.31,lng:12.87,type:'heri',
+   place:"Hroznětín",region:"Karlovy Vary — Monti Metalliferi",
+   dates:"7–12 luglio",work:"MANU · RENO",
+   desc:"Ghosts of the Ore Mountains: manutenzione e conservazione del vecchio cimitero, cura delle tombe storiche, assistenza agli archivi. Una settimana breve ma intensa tra Karlovy Vary e i Monti Metalliferi.",
+   fee:"30 €",vols:6,age:"18+"},
+
+  {lat:50.27,lng:13.00,type:'heri',
+   place:"Kyselka-Radošov",region:"Karlovy Vary — Valle dell'Ohře",
+   dates:"17–25 agosto",work:"MANU · RENO",
+   desc:"Get Creative, Paint Cabins, Drink Mattoni!: ristrutturazione e pittura di baite nel complesso ricreativo Ontario, centro comunitario per gli abitanti locali. Acqua minerale Mattoni inclusa.",
+   fee:"30 €",vols:10,age:"18+"},
+
+  {lat:49.73,lng:13.15,type:'heri',
+   place:"Rochlov",region:"Plzeň — Boemia occidentale",
+   dates:"6–20 luglio",work:"RENO · FEST · MANU",
+   desc:"ESC Cultivate Rochlov Castle Gardens: rivitalizzazione del parco e degli edifici del castello. Recinti per animali (pecore, lama, canguri), pittura, giardinaggio. Un castello con sorprese.",
+   fee:"gratuita",vols:8,age:"18-30"},
+
+  {lat:49.75,lng:13.49,type:'soci',
+   place:"Kyšice",region:"Plzeň — Boemia",
+   dates:"1–15 agosto",work:"SOCI · KIDS",
+   desc:"ESC Summerland for Children: lavoro diretto con bambini 4-9 anni in un campo estivo urbano. Attività quotidiane, giochi, creatività in un nuovo centro comunitario del villaggio.",
+   fee:"gratuita",vols:8,age:"18-30"},
+
+  {lat:49.90,lng:14.95,type:'envi',
+   place:"Újezdec",region:"Kolín — Boemia centrale",
+   dates:"1–15 agosto",work:"ENVI · MANU",
+   desc:"ESC Permaculture in Practice: permacultura intensiva e ripristino del paesaggio. Scavo buche per alberi, pacciamatura, compostaggio, falciatura con la falce. Apprendimento pratico in un villaggio agricolo.",
+   fee:"gratuita",vols:10,age:"18-30"},
+
+  {lat:50.23,lng:14.41,type:'envi',
+   place:"Odolena Voda",region:"Boemia centrale — vicino Praga",
+   dates:"1–16 agosto",work:"MANU · ENVI",
+   desc:"Green Oasis in Odolena Voda: manutenzione ed espansione delle aree verdi pubbliche. Potatura, rimozione rami, pittura di murales negli spazi urbani. A 20 km da Praga.",
+   fee:"30 €",vols:15,age:"18+"},
+
+  {lat:50.18,lng:15.04,type:'soci',
+   place:"Nymburk",region:"Boemia centrale",
+   dates:"8–22 luglio",work:"DISA · SOCI · MANU",
+   desc:"ESC Centre for All – Adventure Afloat: preparazione e supporto a un campo diurno per bambini con disabilità. Laboratori creativi, giochi, attività sull'acqua.",
+   fee:"gratuita",vols:10,age:"18-30"},
+
+  {lat:49.79,lng:15.71,type:'soci',
+   place:"Modletín",region:"Montagne di Ferro — Boemia-Moravia",
+   dates:"11–25 agosto",work:"DISA · SOCI · MANU",
+   desc:"ESC Shared Life in a Diverse Community: vita e lavoro nella comunità Benediktus, che accoglie persone con e senza disabilità. Lavori nel giardino, costruzione, cucina, vita comunitaria.",
+   fee:"gratuita",vols:7,age:"18-30"},
+
+  // MORAVIA
+  {lat:49.33,lng:17.58,type:'heri',
+   place:"Holešov",region:"Moravia — Zlín",
+   dates:"14–26 luglio",work:"RENO · SOCI · FEST",
+   desc:"Treasures of Jewish Culture in Holešov: cura del cimitero ebraico e della sinagoga di Šachov. Pulizia delle tombe, paesaggismo, conservazione di uno dei pochi complessi ebraici del XVI secolo in Europa.",
+   fee:"30 €",vols:6,age:"18+"},
+
+  {lat:48.86,lng:17.59,type:'envi',
+   place:"Nova Lhota",region:"Carpazi Bianchi — Moravia meridionale",
+   dates:"17–31 luglio",work:"ENVI · MANU",
+   desc:"ESC Collect Herbs and Make Tea in Bílé Karpaty: manutenzione del giardino naturale, raccolta di erbe, produzione del tè. Area UNESCO ricchissima di biodiversità ai confini con la Slovacchia.",
+   fee:"gratuita",vols:12,age:"18-30"},
+
+  {lat:49.64,lng:18.04,type:'envi',
+   place:"Bartošovice",region:"Moravia-Slesia — fiume Odra",
+   dates:"1–9 agosto",work:"ANIM · MANU",
+   desc:"Guardians of Wildlife: supporto alla stazione di recupero degli animali selvatici e alla futura Riserva della Biosfera di Koryta. Pittura, scavo, manutenzione. Campo aperto anche alle famiglie.",
+   fee:"102 €",vols:30,age:"Famiglie"},
+
+  {lat:49.86,lng:18.53,type:'envi',
+   place:"Karviná",region:"Moravia-Slesia — confine polacco",
+   dates:"15–30 agosto",work:"ENVI · KIDS · MANU",
+   desc:"Seeds of Beskydy: piantumazione e cura di alberi e arbusti, ripristino di habitat naturali, osservazione di flora e fauna con i bambini della comunità. Karviná, città di confine sul fiume Olše.",
+   fee:"30 €",vols:15,age:"18+"},
+
+  // BOEMIA MERIDIONALE
+  {lat:49.72,lng:12.45,type:'envi',
+   place:"Alt Pocher — Foresta Boema",region:"Plzeň — confine tedesco",
+   dates:"28 ago – 12 set",work:"ENVI · MANU",
+   desc:"Back to the Nature Youth: falciatura, rastrellatura e raccolta dell'erba su prati protetti nella Foresta Boema. Lavoro fisico in una riserva naturale vicino al confine con la Germania.",
+   fee:"30 €",vols:6,age:"18+"},
+
+  // MORAVIA SETTENTRIONALE
+  {lat:50.66,lng:14.00,type:'soci',
+   place:"Ústí nad Labem — Předlice",region:"Boemia settentrionale",
+   dates:"12–26 luglio",work:"DISA · SOCI · KIDS",
+   desc:"Together for Youth: supporto a bambini e giovani in un club di bassa soglia nel quartiere sociale di Předlice. Giochi, laboratori creativi, tutoraggio, sostegno ai compiti.",
+   fee:"30 €",vols:10,age:"18+"},
+];
+
+camps.forEach(c=>{
+  L.marker([c.lat,c.lng],{icon:pinIcon(c.type)})
+    .addTo(map)
+    .bindPopup(mkPopup(c),{maxWidth:300});
+});
+</script>
+</body>
+</html>
