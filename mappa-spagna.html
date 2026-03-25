@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Campi Spagna 2026 — Lunaria</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Sans+Condensed:wght@400;600;700&family=Fira+Sans:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0f2952;--yellow:#FFD500;--pink:#cc3366;--green:#2e7d4f;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Fira Sans',sans-serif;}
+#map{width:100%;height:560px;}
+.map-tiles{filter:saturate(0.65) brightness(1.05);}
+.map-titlebar{background:var(--navy);color:#fff;padding:10px 18px;font-family:'Fira Sans Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;display:flex;justify-content:space-between;align-items:center;border-top:4px solid var(--navy);}
+.map-titlebar em{color:var(--yellow);font-style:normal;}
+.map-titlebar small{font-weight:300;font-size:11px;color:#8899bb;}
+.map-legend{background:#fff;padding:10px 18px;border-top:2px solid var(--yellow);display:flex;flex-wrap:wrap;gap:18px;font-family:'Fira Sans Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--navy);}
+.ld{display:flex;align-items:center;gap:7px;}
+.leaflet-popup-content-wrapper{border-radius:3px;border-left:4px solid var(--navy);box-shadow:0 6px 24px rgba(0,0,0,.22);padding:0;overflow:hidden;}
+.leaflet-popup-content{margin:0!important;width:278px!important;}
+.pu-header{background:var(--navy);padding:7px 14px;}
+.pu-dates{font-family:'Fira Sans Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--yellow);display:block;}
+.pu-body{padding:11px 14px;}
+.pu-place{font-family:'Fira Sans Condensed',sans-serif;font-size:15px;font-weight:700;color:var(--navy);margin-bottom:2px;}
+.pu-region{font-size:10px;font-weight:600;color:#999;margin-bottom:5px;font-family:'Fira Sans Condensed',sans-serif;letter-spacing:.5px;text-transform:uppercase;}
+.pu-work{font-size:10px;font-weight:700;color:var(--pink);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;}
+.pu-desc{font-size:12px;color:#444;line-height:1.55;}
+.pu-fee{margin-top:8px;font-size:11px;font-weight:700;color:var(--navy);font-family:'Fira Sans Condensed',sans-serif;}
+.pu-fee span{color:var(--green);}
+.pu-org{margin-top:4px;font-size:10px;color:#888;font-style:italic;}
+</style>
+</head>
+<body>
+<div class="map-titlebar">
+  CAMPI DI VOLONTARIATO — <em>&nbsp;SPAGNA 2026</em>
+  <small>SVI / ESDA / Lunaria</small>
+</div>
+<div id="map" role="application" aria-label="Mappa campi Spagna 2026"></div>
+<div class="map-legend">
+  <div class="ld"><svg width="11" height="15" viewBox="0 0 11 15"><path d="M5.5 1C3 1 1 3 1 5.5c0 3.8 4.5 9 4.5 9s4.5-5.2 4.5-9C10 3 8 1 5.5 1z" fill="#2e7d4f"/><circle cx="5.5" cy="5.5" r="2.2" fill="#FFD500"/></svg>Ambiente / Natura</div>
+  <div class="ld"><svg width="11" height="15" viewBox="0 0 11 15"><path d="M5.5 1C3 1 1 3 1 5.5c0 3.8 4.5 9 4.5 9s4.5-5.2 4.5-9C10 3 8 1 5.5 1z" fill="#cc3366"/><circle cx="5.5" cy="5.5" r="2.2" fill="#fff"/></svg>Patrimonio / Archeologia</div>
+  <div class="ld"><svg width="11" height="15" viewBox="0 0 11 15"><path d="M5.5 1C3 1 1 3 1 5.5c0 3.8 4.5 9 4.5 9s4.5-5.2 4.5-9C10 3 8 1 5.5 1z" fill="#0f2952"/><circle cx="5.5" cy="5.5" r="2.2" fill="#FFD500"/></svg>Sociale / Educazione</div>
+  <div class="ld"><svg width="11" height="15" viewBox="0 0 11 15"><path d="M5.5 1C3 1 1 3 1 5.5c0 3.8 4.5 9 4.5 9s4.5-5.2 4.5-9C10 3 8 1 5.5 1z" fill="#e67e22"/><circle cx="5.5" cy="5.5" r="2.2" fill="#fff"/></svg>Cultura / Festival</div>
+</div>
+
+<script>
+const map=L.map('map',{zoomControl:true,scrollWheelZoom:false,minZoom:5,maxZoom:14}).setView([40.4,-3.5],6);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',maxZoom:19,className:'map-tiles'}).addTo(map);
+
+function pinIcon(type){
+  const colors={envi:['#2e7d4f','#FFD500'],heri:['#cc3366','#fff'],soci:['#0f2952','#FFD500'],cult:['#e67e22','#fff']};
+  const[fill,dot]=colors[type]||colors.envi;
+  const id='sh'+Math.random().toString(36).slice(2,6);
+  return L.divIcon({className:'',html:`<div style="cursor:pointer;transition:transform .15s;transform-origin:bottom center" onmouseenter="this.style.transform='scale(1.3)'" onmouseleave="this.style.transform='scale(1)'"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="34" viewBox="0 0 26 34"><defs><filter id="${id}"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="rgba(0,0,0,.3)"/></filter></defs><path d="M13 2C7 2 2 7 2 13c0 8.5 11 20 11 20s11-11.5 11-20C24 7 19 2 13 2z" fill="${fill}" filter="url(#${id})"/><circle cx="13" cy="13" r="5" fill="${dot}" opacity=".95"/></svg></div>`,iconSize:[26,34],iconAnchor:[13,34],popupAnchor:[0,-36]});
+}
+
+function mkPopup(o){
+  const fee=o.fee?`Fee: <span>${o.fee}</span>`:`Fee: <span>gratuita</span>`;
+  return `<div class="pu-header"><span class="pu-dates">${o.dates}</span></div><div class="pu-body"><div class="pu-place">${o.place}</div><div class="pu-region">${o.region}</div><div class="pu-work">${o.work}</div><div class="pu-desc">${o.desc}</div><div class="pu-fee">${fee} · ${o.vols} volontarə · età ${o.age}</div><div class="pu-org">${o.org}</div></div>`;
+}
+
+const camps=[
+  // VALENCIA
+  {lat:38.82,lng:-0.03,type:'soci',place:"Sanet i Negrals",region:"Valencia — Costa Blanca",dates:"7 apr – 30 apr",work:"SOCI · MANU · CULT",desc:"Dana HH 03: recupero materiale e rafforzamento comunitario dopo l'alluvione Dana. Consapevolezza sugli effetti dei disastri naturali e ricostruzione del tessuto sociale.",fee:"gratuita",vols:14,age:"18-30",org:"ESDA"},
+
+  // MADRID area
+  {lat:40.03,lng:-3.62,type:'soci',place:"Aranjuez",region:"Comunità di Madrid",dates:"10–24 agosto",work:"SOCI · DISA · EDU",desc:"Healing Together – Basida Aranjuez: vita quotidiana in un centro di recupero. Cucina, pulizia, passeggiate, attività ricreative con i residenti. Gite a Toledo e Madrid.",fee:"50 €",vols:5,age:"21+",org:"ESDA"},
+  {lat:40.26,lng:-3.21,type:'soci',place:"Fuentidueña del Tajo",region:"Comunità di Madrid (2 turni)",dates:"4–11 ago · 11–18 ago",work:"DISA · MANU · SOCI",desc:"Masnatur: accompagnamento dei residenti in una casa-famiglia. Vita quotidiana, attività ricreative, gite nella campagna madrilena.",fee:"50 €",vols:5,age:"18-30",org:"ESDA"},
+  {lat:40.50,lng:-4.18,type:'envi',place:"Cercedilla",region:"Sierra de Guadarrama, Madrid",dates:"17–31 luglio",work:"ENVI · AGRI",desc:"Protected Corner of Succulents and Butterfly Oases: creazione di angoli protetti per piante succulente e oasi per farfalle nella Sierra de Guadarrama.",fee:"gratuita",vols:14,age:"18-30",org:"SVI Madrid"},
+  {lat:40.88,lng:-3.86,type:'heri',place:"Rascafría",region:"Sierra de Guadarrama, Madrid",dates:"2–16 luglio",work:"ARCH · ENVI",desc:"The Paper Trail I: pulizia e studio di siti archeologici nella foresta. Ricerca sul patrimonio cartario storico della zona.",fee:"gratuita",vols:12,age:"18-30",org:"SVI Madrid"},
+  {lat:40.42,lng:-3.70,type:'soci',place:"Madrid",region:"Comunità di Madrid",dates:"28 giu – 12 lug",work:"SOCI",desc:"People Who Make San Fermín Better: recupero ambientale, creazione di orti urbani e attività sociali nel quartiere di San Fermín a Madrid.",fee:"gratuita",vols:8,age:"18-30",org:"SVI Madrid"},
+  {lat:40.97,lng:-3.52,type:'envi',place:"Serrada de la Fuente",region:"Sierra Norte, Madrid",dates:"3–17 agosto",work:"CONS · ENVI",desc:"SAW Live: biocostruzione per la manutenzione di un progetto di allevamento biologico. Tecniche sostenibili e vita rurale nella Sierra Norte.",fee:"gratuita",vols:8,age:"18-30",org:"SVI Madrid"},
+
+  // SALAMANCA
+  {lat:40.96,lng:-5.66,type:'soci',place:"Salamanca",region:"Castilla y León (4 turni)",dates:"15 giu – 6 set (turni da 2 settimane)",work:"DISA · EDU · MANU",desc:"Cáritas Casa Samuel: 4 turni consecutivi nel rifugio di Cáritas a Salamanca. Accompagnamento quotidiano ai residenti, passeggiate, commissioni. Poca disponibilità (2 posti a turno).",fee:"50 €",vols:2,age:"21-60",org:"ESDA"},
+
+  // ANDALUCÍA
+  {lat:37.84,lng:-3.35,type:'soci',place:"Jódar",region:"Jaén, Andalucía",dates:"1–16 agosto",work:"KIDS · CULT · ENVI",desc:"No Hell Below Us: workshop mattutini per bambini su ambiente, digital detox e cooperazione. Pomeriggi liberi in un villaggio agricolo vicino a Jaén.",fee:"50 €",vols:12,age:"18+",org:"ESDA"},
+  {lat:37.11,lng:-2.78,type:'envi',place:"Abrucena",region:"Almería — Sierra Nevada",dates:"15–29 agosto",work:"ENVI · CULT · ARCH",desc:"Conservation of Mountain Habitats: recupero di muri a secco (ribazos) e patrimonio storico nel Parco Naturale della Sierra Nevada. Paesaggi montani straordinari.",fee:"gratuita",vols:10,age:"18-30",org:"SVI Andalucía"},
+
+  // ARAGONA
+  {lat:42.13,lng:-0.40,type:'cult',place:"Huesca",region:"Aragona",dates:"9–23 luglio",work:"CULT · FEST",desc:"Huesca is Legend: studio delle leggende e storie della città + performance durante il festival estivo.",fee:"gratuita",vols:10,age:"18-30",org:"SVI Aragón"},
+  {lat:42.29,lng:-0.76,type:'cult',place:"Santa Eulalia de Gállego",region:"Saragozza — Pre-Pirenei",dates:"26 lug – 9 ago",work:"CULT · FEST",desc:"Jorearte: creazione e messa in scena di uno spettacolo teatrale in spagnolo come parte del festival locale.",fee:"gratuita",vols:10,age:"18-30",org:"SVI Aragón"},
+  {lat:42.11,lng:0.48,type:'cult',place:"Benabarre",region:"Huesca — Pre-Pirenei",dates:"26 lug – 9 ago",work:"MANU · SOCI · STUD",desc:"Wild Youth: produzione tecnica e artistica del 'Ball dels Salvatges', danza tradizionale aragonese. Ricerca etnografica e performance.",fee:"gratuita",vols:6,age:"18-30",org:"SVI Aragón"},
+  {lat:42.75,lng:-0.52,type:'heri',place:"Canfranc-Estación",region:"Huesca — Valle di Canfranc",dates:"26 lug – 9 ago",work:"RENO",desc:"The Train of the Way of St. James: restauro dei veicoli della Croce Rossa. Rifacimento interno ed esterno, manutenzione meccanica. Stazione internazionale di Canfranc.",fee:"gratuita",vols:10,age:"18-30",org:"SVI Aragón"},
+
+  // GALIZIA
+  {lat:42.56,lng:-7.39,type:'heri',place:"A Pobra do Brollón",region:"Lugo, Galizia",dates:"3–14 agosto",work:"ARCH · FEST",desc:"Castro e Romería de San Lourenzo: scavo e pulizia di un sito castro + partecipazione alla romería tradizionale. Improvvisazione orale 'brindos'.",fee:"gratuita",vols:9,age:"18-30",org:"SVI Galicia"},
+  {lat:42.22,lng:-8.59,type:'envi',place:"Mos",region:"Pontevedra, Galizia",dates:"3–14 agosto",work:"ENVI · RENO · CONS",desc:"Aldea Alfacuca: restauro di piccoli edifici storici nel villaggio. Tecniche tradizionali galleghe, vita rurale, paesaggio ricco di archeologia.",fee:"gratuita",vols:7,age:"18-30",org:"SVI Galicia"},
+  {lat:42.22,lng:-8.90,type:'envi',place:"Illas Cíes",region:"Vigo, Pontevedra (Parco Nazionale)",dates:"1–12 luglio",work:"ENVI",desc:"Illas Cíes I: manutenzione ambientale sulle isole Cíes (Parco Nazionale). Sorveglianza antincendio, informazione ai visitatori, tutela dell'ecosistema insulare.",fee:"gratuita",vols:7,age:"18-30",org:"SVI Galicia"},
+  {lat:42.29,lng:-8.14,type:'cult',place:"Ribadavia",region:"Ourense, Galizia",dates:"1–12 agosto",work:"CULT",desc:"Viaxa pola Istoria: supporto al Festival della Storia di Ribadavia (di interesse turistico nazionale). Tradizioni medievali, vino Ribeiro, patrimonio ebraico.",fee:"gratuita",vols:7,age:"18-30",org:"SVI Galicia"},
+  {lat:42.47,lng:-7.27,type:'envi',place:"Quiroga",region:"Lugo, Galizia",dates:"23 lug – 3 ago",work:"ENVI",desc:"Fervenza das Polancas: valorizzazione della cascata delle Polancas. Pulizia del percorso, segnaletica, sensibilizzazione ambientale.",fee:"gratuita",vols:7,age:"18-30",org:"SVI Galicia"},
+  {lat:41.99,lng:-8.74,type:'heri',place:"Tomiño",region:"Pontevedra — Baixo Miño",dates:"6–17 luglio",work:"ARCH · ENVI",desc:"Na Procura das Fortalezas do Baixo Miño: lavori archeologici per caratterizzare le Torre medievali del Baixo Miño. Frontiera con il Portogallo.",fee:"gratuita",vols:7,age:"18-30",org:"SVI Galicia"},
+  {lat:42.58,lng:-8.83,type:'envi',place:"Vilanova de Arousa",region:"Pontevedra — Ría de Arousa",dates:"3–14 luglio",work:"ENVI",desc:"Salvemos o Mar: recupero ambientale della costa tra la spiaggia As Sinas e il porto di Vilanova. Pulizia marina, sensibilizzazione, vita nella Ría.",fee:"gratuita",vols:7,age:"18-30",org:"SVI Galicia"},
+  {lat:42.15,lng:-7.96,type:'cult',place:"Celanova",region:"Ourense, Galizia",dates:"14–25 agosto",work:"CULT · ART",desc:"Do Audiovisual Galego: produzione di pezzi audiovisivi non-fiction sul patrimonio culturale, artistico e letterario della Galizia.",fee:"gratuita",vols:7,age:"18-30",org:"SVI Galicia"},
+  {lat:43.25,lng:-8.58,type:'heri',place:"A Laracha",region:"A Coruña, Galizia",dates:"3–14 agosto",work:"ARCH · ENVI · CULT",desc:"Castro de Montes Claros: campo archeologico e ambientale nel castro. Scavo, studio del territorio, patrimonio culturale della regione di Bergantiños.",fee:"gratuita",vols:7,age:"18-30",org:"SVI Galicia"},
+
+  // CANTABRIA
+  {lat:43.39,lng:-4.45,type:'heri',place:"Val de San Vicente",region:"Cantabria — Costa occidentale",dates:"1–15 agosto",work:"RENO",desc:"Conservation of Prellezo Castle: pulizia e lavori di restauro del castro medievale di Prellezo. Introduzione all'archeologia stratigrafica, rimozione vegetazione.",fee:"gratuita",vols:10,age:"18-30",org:"SVI Cantabria"},
+  {lat:43.30,lng:-3.97,type:'heri',place:"Puente Viesgo",region:"Cantabria — Valle del Pas",dates:"16–30 agosto",work:"RENO",desc:"Conservation of Industrial Heritage at Puente Viesgo: conservazione della centrale idroelettrica storica di Viesgo. Patrimonio industriale del XIX secolo.",fee:"gratuita",vols:15,age:"18-30",org:"SVI Cantabria"},
+
+  // LA RIOJA
+  {lat:42.18,lng:-1.75,type:'envi',place:"Alfaro",region:"La Rioja — Ebro",dates:"14–28 luglio",work:"ENVI",desc:"Alfaro Environmental: manutenzione ambientale nella Riserva Naturale. Lavoro mattutino (8-12) per evitare il caldo. Alfaro è famosa per la colonia di cicogne più grande d'Europa.",fee:"gratuita",vols:10,age:"18-26",org:"SVI Rioja"},
+
+  // EXTREMADURA
+  {lat:38.17,lng:-6.55,type:'heri',place:"Fuentes de León",region:"Badajoz, Extremadura",dates:"20 lug – 3 ago",work:"ARCH",desc:"School of Prehistoric Archaeology in the Caves of Fuentes de León: scavo e studio delle grotte preistoriche nel Monumento Naturale. Alta quota, zona ecologica protetta.",fee:"gratuita",vols:6,age:"18-30",org:"SVI Extremadura"},
+  {lat:39.89,lng:-5.65,type:'envi',place:"Talayuela",region:"Cáceres, Extremadura",dates:"19–30 agosto",work:"ART · ENVI",desc:"Circus in Nature: campo circo nella foresta di pini del Quinto Pino. Arte circense, educazione ambientale, vita nella pineta.",fee:"gratuita",vols:8,age:"18-30",org:"SVI Extremadura"},
+];
+
+camps.forEach(c=>{
+  L.marker([c.lat,c.lng],{icon:pinIcon(c.type)})
+    .addTo(map)
+    .bindPopup(mkPopup(c),{maxWidth:300});
+});
+</script>
+</body>
+</html>
