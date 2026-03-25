@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Volontariato Ungheria 2026 — Lunaria</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Sans+Condensed:wght@400;600;700&family=Fira+Sans:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0f2952;--yellow:#FFD500;--pink:#cc3366;--green:#2e7d4f;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Fira Sans',sans-serif;}
+#map{width:100%;height:560px;}
+.map-tiles{filter:saturate(0.65) brightness(1.05);}
+.map-titlebar{background:var(--navy);color:#fff;padding:10px 18px;font-family:'Fira Sans Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;display:flex;justify-content:space-between;align-items:center;border-top:4px solid var(--navy);}
+.map-titlebar em{color:var(--yellow);font-style:normal;}
+.map-titlebar small{font-weight:300;font-size:11px;color:#8899bb;}
+.map-legend{background:#fff;padding:10px 18px;border-top:2px solid var(--yellow);display:flex;flex-wrap:wrap;gap:18px;font-family:'Fira Sans Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--navy);}
+.ld{display:flex;align-items:center;gap:7px;}
+.leaflet-popup-content-wrapper{border-radius:3px;border-left:4px solid var(--navy);box-shadow:0 6px 24px rgba(0,0,0,.22);padding:0;overflow:hidden;}
+.leaflet-popup-content{margin:0!important;width:278px!important;}
+.pu-header{background:var(--navy);padding:7px 14px;}
+.pu-dates{font-family:'Fira Sans Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--yellow);display:block;}
+.pu-body{padding:11px 14px;}
+.pu-place{font-family:'Fira Sans Condensed',sans-serif;font-size:15px;font-weight:700;color:var(--navy);margin-bottom:2px;}
+.pu-region{font-size:10px;font-weight:600;color:#999;margin-bottom:5px;font-family:'Fira Sans Condensed',sans-serif;letter-spacing:.5px;text-transform:uppercase;}
+.pu-work{font-size:10px;font-weight:700;color:var(--pink);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;}
+.pu-desc{font-size:12px;color:#444;line-height:1.55;}
+.pu-fee{margin-top:8px;font-size:11px;font-weight:700;color:var(--navy);font-family:'Fira Sans Condensed',sans-serif;}
+.pu-fee span{color:var(--green);}
+</style>
+</head>
+<body>
+<div class="map-titlebar">
+  VOLONTARIATO UNGHERIA — <em>&nbsp;2026</em>
+  <small>EGY / Lunaria · tutti gratuiti</small>
+</div>
+<div id="map"></div>
+<div class="map-legend">
+  <div class="ld"><svg width="11" height="15" viewBox="0 0 11 15"><path d="M5.5 1C3 1 1 3 1 5.5c0 3.8 4.5 9 4.5 9s4.5-5.2 4.5-9C10 3 8 1 5.5 1z" fill="#0f2952"/><circle cx="5.5" cy="5.5" r="2.2" fill="#FFD500"/></svg>Bambini / Educazione / Sociale</div>
+</div>
+<script>
+const map=L.map('map',{zoomControl:true,scrollWheelZoom:false,minZoom:6,maxZoom:13}).setView([47.5,19.2],7);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',maxZoom:19,className:'map-tiles'}).addTo(map);
+function pin(){
+  const id='p'+Math.random().toString(36).slice(2,5);
+  return L.divIcon({className:'',html:`<div style="cursor:pointer;transition:transform .15s;transform-origin:bottom center" onmouseenter="this.style.transform='scale(1.3)'" onmouseleave="this.style.transform='scale(1)'"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="34" viewBox="0 0 26 34"><defs><filter id="${id}"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="rgba(0,0,0,.3)"/></filter></defs><path d="M13 2C7 2 2 7 2 13c0 8.5 11 20 11 20s11-11.5 11-20C24 7 19 2 13 2z" fill="#0f2952" filter="url(#${id})"/><circle cx="13" cy="13" r="5" fill="#FFD500" opacity=".95"/></svg></div>`,iconSize:[26,34],iconAnchor:[13,34],popupAnchor:[0,-36]});
+}
+function pop(o){return `<div style="background:#0f2952;padding:7px 14px"><span style="font-family:'Fira Sans Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#FFD500">${o.dates}</span></div><div style="padding:11px 14px"><div style="font-family:'Fira Sans Condensed',sans-serif;font-size:15px;font-weight:700;color:#0f2952;margin-bottom:2px">${o.place}</div><div style="font-size:10px;font-weight:600;color:#999;margin-bottom:5px;font-family:'Fira Sans Condensed',sans-serif;letter-spacing:.5px;text-transform:uppercase">${o.region}</div><div style="font-size:10px;font-weight:700;color:#cc3366;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px">${o.work}</div><div style="font-size:12px;color:#444;line-height:1.55">${o.desc}</div><div style="margin-top:8px;font-size:11px;font-weight:700;color:#0f2952;font-family:'Fira Sans Condensed',sans-serif">Fee: <span style="color:#2e7d4f">${o.fee}</span> · ${o.vols} vol · età ${o.age}</div></div>`;}
+[
+  {lat:47.64,lng:18.96,place:"Csobánka",region:"Pest — collina di Pilis",dates:"7–14 luglio",work:"KIDS · EDU · SOCI",desc:"Csodaműhely: campo estivo per bambini 6-12 anni. Attività creative, giochi, laboratori educativi in un paese sulle colline di Pilis vicino a Budapest.",fee:"gratuita",vols:8,age:"18-50"},
+  {lat:48.21,lng:19.60,place:"Litke",region:"Nógrád — Ungheria settentrionale",dates:"2–19 luglio",work:"KIDS · EDU · SOCI",desc:"Summer Camp at Tarisznya: campo della Fondazione Tarisznya in un villaggio rurale del nord. Attività per bambini svantaggiati, educazione non formale, vita comunitaria.",fee:"gratuita",vols:10,age:"18-30"},
+  {lat:48.08,lng:19.52,place:"Szécsény",region:"Nógrád — Ungheria settentrionale",dates:"30 lug – 16 ago",work:"KIDS · EDU · SOCI",desc:"Summer Camp at Ifiház: campo estivo internazionale a Szécsény. Team di volontari che animano attività quotidiane per bambini e ragazzi della comunità locale.",fee:"gratuita",vols:10,age:"18-30"},
+  {lat:48.02,lng:20.10,place:"Pétervására",region:"Heves — Ungheria settentrionale",dates:"30 lug – 16 ago",work:"KIDS · EDU · SOCI",desc:"Summer Camp at Hét Kútforrás: campo a supporto dei bambini Rom della comunità locale. Attività culturali, giochi, educazione. Un lavoro concreto in un contesto complesso.",fee:"gratuita",vols:10,age:"18-30"},
+  {lat:46.08,lng:18.26,place:"Pécs",region:"Baranya — Ungheria meridionale",dates:"16 lug – 2 ago",work:"KIDS · EDU · SOCI",desc:"Summer Camp in Élménytár: i volontari non sono osservatori ma partecipanti diretti alla realtà sociale di Pécs, lavorando con persone in povertà. Non un campo turistico.",fee:"gratuita",vols:10,age:"18-30"},
+  {lat:46.90,lng:19.71,place:"Kecskemét",region:"Bács-Kiskun — Pianura ungherese",dates:"4–11 luglio",work:"KIDS · EDU · SOCI",desc:"Kids Summer Camp Kecskemét: campo della Tanoda Hajnalcsillag. Team internazionale, attività educative e creative con bambini in difficoltà.",fee:"gratuita",vols:7,age:"18-50"},
+  {lat:47.73,lng:19.19,place:"Csörög",region:"Pest — ansa del Danubio",dates:"2–9 agosto",work:"KIDS · EDU · SOCI",desc:"Kids Summer Camp Csörög: nell'ansa del Danubio, nord di Budapest. Organizzazione del campo estivo con un team internazionale. Connessioni reali con i bambini del luogo.",fee:"gratuita",vols:8,age:"18-50"},
+  {lat:48.54,lng:20.80,place:"Bódvalenke",region:"Borsod — confine slovacco",dates:"12–18 luglio",work:"KIDS · EDU · SOCI",desc:"Kids Summer Camp Bódvalenke: piccolo villaggio al confine con la Slovacchia, famoso per i murales romani dipinti sulle facciate. Campo estivo per bambini 3-18 anni.",fee:"gratuita",vols:6,age:"18-50"},
+  {lat:47.49,lng:19.90,place:"Jászberény",region:"Jász-Nagykun-Szolnok — Grande Pianura",dates:"16 lug – 2 ago",work:"KIDS · EDU · SOCI",desc:"Summer Camp in Kiscsillag: attività di comunità e programmi educativi per bambini nella Grande Pianura ungherese. Team internazionale in una città di 25.000 abitanti.",fee:"gratuita",vols:10,age:"18-30"},
+].forEach(c=>L.marker([c.lat,c.lng],{icon:pin()}).addTo(map).bindPopup(pop(c),{maxWidth:300}));
+</script>
+</body>
+</html>

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Volontariato Belgio 2026 — Lunaria</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Sans+Condensed:wght@400;600;700&family=Fira+Sans:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0f2952;--yellow:#FFD500;--pink:#cc3366;--green:#2e7d4f;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Fira Sans',sans-serif;}
+#map{width:100%;height:560px;}
+.map-tiles{filter:saturate(0.65) brightness(1.05);}
+.map-titlebar{background:var(--navy);color:#fff;padding:10px 18px;font-family:'Fira Sans Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;display:flex;justify-content:space-between;align-items:center;border-top:4px solid var(--navy);}
+.map-titlebar em{color:var(--yellow);font-style:normal;}
+.map-titlebar small{font-weight:300;font-size:11px;color:#8899bb;}
+.map-legend{background:#fff;padding:10px 18px;border-top:2px solid var(--yellow);display:flex;flex-wrap:wrap;gap:14px;font-family:'Fira Sans Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--navy);}
+.ld{display:flex;align-items:center;gap:7px;}
+.leaflet-popup-content-wrapper{border-radius:3px;border-left:4px solid var(--navy);box-shadow:0 6px 24px rgba(0,0,0,.22);padding:0;overflow:hidden;}
+.leaflet-popup-content{margin:0!important;width:278px!important;}
+</style>
+</head>
+<body>
+<div class="map-titlebar">
+  VOLONTARIATO BELGIO — <em>&nbsp;2026</em>
+  <small>CBB / JAVVA / Lunaria · tutti gratuiti</small>
+</div>
+<div id="map"></div>
+<div class="map-legend">
+  <div class="ld"><svg width="11" height="15" viewBox="0 0 11 15"><path d="M5.5 1C3 1 1 3 1 5.5c0 3.8 4.5 9 4.5 9s4.5-5.2 4.5-9C10 3 8 1 5.5 1z" fill="#3498db"/><circle cx="5.5" cy="5.5" r="2.2" fill="#fff"/></svg>Rifugiati / Sociale</div>
+  <div class="ld"><svg width="11" height="15" viewBox="0 0 11 15"><path d="M5.5 1C3 1 1 3 1 5.5c0 3.8 4.5 9 4.5 9s4.5-5.2 4.5-9C10 3 8 1 5.5 1z" fill="#cc3366"/><circle cx="5.5" cy="5.5" r="2.2" fill="#fff"/></svg>Costruzione / Restauro</div>
+  <div class="ld"><svg width="11" height="15" viewBox="0 0 11 15"><path d="M5.5 1C3 1 1 3 1 5.5c0 3.8 4.5 9 4.5 9s4.5-5.2 4.5-9C10 3 8 1 5.5 1z" fill="#e67e22"/><circle cx="5.5" cy="5.5" r="2.2" fill="#fff"/></svg>Festival</div>
+  <div class="ld"><svg width="11" height="15" viewBox="0 0 11 15"><path d="M5.5 1C3 1 1 3 1 5.5c0 3.8 4.5 9 4.5 9s4.5-5.2 4.5-9C10 3 8 1 5.5 1z" fill="#2e7d4f"/><circle cx="5.5" cy="5.5" r="2.2" fill="#FFD500"/></svg>Ambiente / Costruzione</div>
+</div>
+<script>
+const map=L.map('map',{zoomControl:true,scrollWheelZoom:false,minZoom:7,maxZoom:13}).setView([50.5,4.5],8);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',maxZoom:19,className:'map-tiles'}).addTo(map);
+function pin(c){const cols={refu:'#3498db',cons:'#cc3366',fest:'#e67e22',envi:'#2e7d4f'};const fill=cols[c]||cols.cons;const dot=c==='envi'?'#FFD500':'#fff';const id='p'+Math.random().toString(36).slice(2,5);return L.divIcon({className:'',html:`<div style="cursor:pointer;transition:transform .15s;transform-origin:bottom center" onmouseenter="this.style.transform='scale(1.3)'" onmouseleave="this.style.transform='scale(1)'"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="34" viewBox="0 0 26 34"><defs><filter id="${id}"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="rgba(0,0,0,.3)"/></filter></defs><path d="M13 2C7 2 2 7 2 13c0 8.5 11 20 11 20s11-11.5 11-20C24 7 19 2 13 2z" fill="${fill}" filter="url(#${id})"/><circle cx="13" cy="13" r="5" fill="${dot}" opacity=".95"/></svg></div>`,iconSize:[26,34],iconAnchor:[13,34],popupAnchor:[0,-36]});}
+function pop(o){return `<div style="background:#0f2952;padding:7px 14px"><span style="font-family:'Fira Sans Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#FFD500">${o.dates}</span></div><div style="padding:11px 14px"><div style="font-family:'Fira Sans Condensed',sans-serif;font-size:15px;font-weight:700;color:#0f2952;margin-bottom:2px">${o.place}</div><div style="font-size:10px;font-weight:600;color:#999;margin-bottom:5px;font-family:'Fira Sans Condensed',sans-serif;letter-spacing:.5px;text-transform:uppercase">${o.region}</div><div style="font-size:10px;font-weight:700;color:#cc3366;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px">${o.work}</div><div style="font-size:12px;color:#444;line-height:1.55">${o.desc}</div><div style="margin-top:8px;font-size:11px;font-weight:700;color:#0f2952;font-family:'Fira Sans Condensed',sans-serif">Fee: <span style="color:#2e7d4f">gratuita</span> · ${o.vols} vol · età ${o.age}</div></div>`;}
+[
+  {lat:50.09,lng:5.21,cat:'cons',place:"Harsin",region:"Namur — Ardenne belghe",dates:"12–26 giugno",work:"AGRI · CONS · ART",desc:"Rêve de Terre: costruzione e sistemazione del nuovo spazio dell'associazione in un villaggio delle Ardenne. Agricoltura, arte, vita collettiva.",vols:12,age:"18-30"},
+  {lat:49.83,lng:4.89,cat:'refu',place:"Sugny",region:"Namur — Province di Namur",dates:"11–25 luglio",work:"REFU · SOCI · MANU",desc:"Fedasil Sugny II: miglioramento del centro di accoglienza rifugiati. Lavori pratici e scambi diretti tra volontari e residenti.",vols:12,age:"18-30"},
+  {lat:50.71,lng:4.53,cat:'refu',place:"Rixensart",region:"Brabante Vallone — Belgio centrale",dates:"26 apr – 9 mag · 5–25 lug",work:"KIDS · REFU · MANU",desc:"Fedasil Rixensart (2 turni): animazione e lavori manuali nel centro rifugiati. Attenzione particolare ai bambini e agli adolescenti.",vols:"8-12",age:"18-30"},
+  {lat:50.23,lng:5.34,cat:'envi',place:"Marche-en-Famenne",region:"Lussemburgo belga — Ardenne",dates:"8–22 agosto",work:"MANU · CONS · ENVI",desc:"GRIMM: costruzione di infrastrutture per ciclisti e cicloturisti a Marche-en-Famenne. Panchine in legno, rastrelliere, segnaletica.",vols:12,age:"18-30"},
+  {lat:50.60,lng:3.40,cat:'cons',place:"Tournai",region:"Vallonia — Hainaut",dates:"11–18 lug · 20–26 lug",work:"RENO · MANU",desc:"Building Youth (2 turni): eco-costruzione e restauro dell'edificio che ospita asili e scuole a Tournai. Tecnica sostenibile, lavoro di squadra.",vols:8,age:"18+"},
+  {lat:50.44,lng:4.76,cat:'fest',place:"Floreffe",region:"Namur",dates:"8–21 agosto",work:"FEST · ENVI · MANU",desc:"Théâtres Nomades Festival: preparazione pasti, montaggio strutture, logistica del festival di teatro nomade. Energia collettiva.",vols:10,age:"18+"},
+  {lat:50.85,lng:4.35,cat:'fest',place:"Bruxelles",region:"Regione di Bruxelles-Capitale",dates:"18 giu – 3 lug",work:"FEST · MANU",desc:"Couleur Café Festival: uno dei più grandi festival world music del Belgio. Allestimento palchi, stand, logistica. Bruxelles in festa.",vols:9,age:"18+"},
+].forEach(c=>L.marker([c.lat,c.lng],{icon:pin(c.cat)}).addTo(map).bindPopup(pop(c),{maxWidth:300}));
+</script>
+</body>
+</html>

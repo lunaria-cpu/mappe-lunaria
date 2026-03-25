@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Volontariato Francia 2026 — Lunaria</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Sans+Condensed:wght@400;600;700&family=Fira+Sans:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0f2952;--yellow:#FFD500;--pink:#cc3366;--green:#2e7d4f;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Fira Sans',sans-serif;}
+#map{width:100%;height:560px;}
+.map-tiles{filter:saturate(0.65) brightness(1.05);}
+.map-titlebar{background:var(--navy);color:#fff;padding:10px 18px;font-family:'Fira Sans Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;display:flex;justify-content:space-between;align-items:center;border-top:4px solid var(--navy);}
+.map-titlebar em{color:var(--yellow);font-style:normal;}
+.map-titlebar small{font-weight:300;font-size:11px;color:#8899bb;}
+.map-legend{background:#fff;padding:10px 18px;border-top:2px solid var(--yellow);display:flex;flex-wrap:wrap;gap:14px;font-family:'Fira Sans Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--navy);}
+.ld{display:flex;align-items:center;gap:7px;}
+.leaflet-popup-content-wrapper{border-radius:3px;border-left:4px solid var(--navy);box-shadow:0 6px 24px rgba(0,0,0,.22);padding:0;overflow:hidden;}
+.leaflet-popup-content{margin:0!important;width:278px!important;}
+</style>
+</head>
+<body>
+<div class="map-titlebar">
+  VOLONTARIATO FRANCIA — <em>&nbsp;2026</em>
+  <small>Concordia / ANEC / Solidarités Jeunesse / Lunaria</small>
+</div>
+<div id="map"></div>
+<div class="map-legend">
+  <div class="ld"><svg width="11" height="15" viewBox="0 0 11 15"><path d="M5.5 1C3 1 1 3 1 5.5c0 3.8 4.5 9 4.5 9s4.5-5.2 4.5-9C10 3 8 1 5.5 1z" fill="#cc3366"/><circle cx="5.5" cy="5.5" r="2.2" fill="#fff"/></svg>Patrimonio / Restauro</div>
+  <div class="ld"><svg width="11" height="15" viewBox="0 0 11 15"><path d="M5.5 1C3 1 1 3 1 5.5c0 3.8 4.5 9 4.5 9s4.5-5.2 4.5-9C10 3 8 1 5.5 1z" fill="#2e7d4f"/><circle cx="5.5" cy="5.5" r="2.2" fill="#FFD500"/></svg>Ambiente / Natura</div>
+  <div class="ld"><svg width="11" height="15" viewBox="0 0 11 15"><path d="M5.5 1C3 1 1 3 1 5.5c0 3.8 4.5 9 4.5 9s4.5-5.2 4.5-9C10 3 8 1 5.5 1z" fill="#e67e22"/><circle cx="5.5" cy="5.5" r="2.2" fill="#fff"/></svg>Cultura / Festival</div>
+</div>
+<script>
+const map=L.map('map',{zoomControl:true,scrollWheelZoom:false,minZoom:5,maxZoom:13}).setView([46.5,2.5],6);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',maxZoom:19,className:'map-tiles'}).addTo(map);
+function pin(c){const cols={heri:'#cc3366',envi:'#2e7d4f',cult:'#e67e22'};const fill=cols[c]||cols.heri;const dot=c==='envi'?'#FFD500':'#fff';const id='p'+Math.random().toString(36).slice(2,5);return L.divIcon({className:'',html:`<div style="cursor:pointer;transition:transform .15s;transform-origin:bottom center" onmouseenter="this.style.transform='scale(1.3)'" onmouseleave="this.style.transform='scale(1)'"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="34" viewBox="0 0 26 34"><defs><filter id="${id}"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="rgba(0,0,0,.3)"/></filter></defs><path d="M13 2C7 2 2 7 2 13c0 8.5 11 20 11 20s11-11.5 11-20C24 7 19 2 13 2z" fill="${fill}" filter="url(#${id})"/><circle cx="13" cy="13" r="5" fill="${dot}" opacity=".95"/></svg></div>`,iconSize:[26,34],iconAnchor:[13,34],popupAnchor:[0,-36]});}
+function pop(o){return `<div style="background:#0f2952;padding:7px 14px"><span style="font-family:'Fira Sans Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#FFD500">${o.dates}</span></div><div style="padding:11px 14px"><div style="font-family:'Fira Sans Condensed',sans-serif;font-size:15px;font-weight:700;color:#0f2952;margin-bottom:2px">${o.place}</div><div style="font-size:10px;font-weight:600;color:#999;margin-bottom:5px;font-family:'Fira Sans Condensed',sans-serif;letter-spacing:.5px;text-transform:uppercase">${o.region}</div><div style="font-size:10px;font-weight:700;color:#cc3366;text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px">${o.work}</div><div style="font-size:12px;color:#444;line-height:1.55">${o.desc}</div><div style="margin-top:8px;font-size:11px;font-weight:700;color:#0f2952;font-family:'Fira Sans Condensed',sans-serif">Fee: <span style="color:#2e7d4f">${o.fee}</span> · ${o.vols} vol · età ${o.age}</div></div>`;}
+[
+  // BRETAGNA / LOIRA
+  {lat:48.28,lng:-2.90,cat:'heri',place:"Merleac",region:"Bretagna",dates:"8–29 luglio",work:"RENO · MANU",desc:"Balls and Walls: restauro di muri storici nel cuore della Bretagna. Primo campo internazionale del comune. Tecnica della muratura a secco.",fee:"gratuita (ESC)",vols:12,age:"18-30"},
+  {lat:47.68,lng:0.27,cat:'heri',place:"Aubigné-Racan",region:"Valle della Loira",dates:"2–23 luglio",work:"RENO · MANU",desc:"Rock'n'Wall: ristrutturazione di muri nel cuore della Valle della Loira, dichiarata patrimonio UNESCO. Villaggio piccolo e dinamico.",fee:"gratuita (ESC)",vols:12,age:"18-30"},
+  // CENTRO
+  {lat:47.08,lng:1.22,cat:'cult',place:"Bourges",region:"Centre-Val de Loire",dates:"3–17 luglio",work:"ART · MANU",desc:"Artwork for Youth: decorazione di spazi urbani a Bourges, Capitale Europea della Cultura 2028. Arte pubblica, creatività collettiva.",fee:"gratuita (ESC)",vols:12,age:"18-30"},
+  {lat:47.08,lng:2.40,cat:'envi',place:"Bourges — Zone Humide",region:"Centre-Val de Loire",dates:"3–17 luglio",work:"ENVI · MANU",desc:"Support Nature in the Swamp: tutela della zona paludosa di Bourges. Lavori di conservazione naturalistica in una città che sarà Capitale Europea della Cultura.",fee:"gratuita (ESC)",vols:15,age:"18-30"},
+  // SUD
+  {lat:43.66,lng:3.40,cat:'envi',place:"Clermont-l'Hérault",region:"Hérault — Occitania",dates:"3–17 giugno",work:"RENO · ENVI",desc:"Protecting Heritage 2: miglioramento dei sentieri del patrimonio storico di Clermont-l'Hérault. Natura e storia nel sud della Francia.",fee:"gratuita (ESC)",vols:14,age:"18-30"},
+  {lat:43.94,lng:3.95,cat:'heri',place:"Sauve",region:"Gard — Occitania",dates:"15–29 maggio",work:"RENO · ENVI",desc:"Save the Medieval Village: restauro delle rovine del castello dei Signori di Sauve, 1.500 anni di storia. Pietra, vegetazione, tecnica tradizionale.",fee:"gratuita (ESC)",vols:14,age:"18-30"},
+  {lat:43.50,lng:-1.28,cat:'envi',place:"Urt",region:"Paese Basco — Pyrénées-Atlantiques",dates:"12–26 giugno",work:"ENVI · CONS",desc:"Preserving Nature of the Basque Region: protezione di siti naturali nel Paese Basco con esperti locali. Specie rare, habitat fragili.",fee:"gratuita (ESC)",vols:14,age:"18-30"},
+  // ALPI / MASSICCIO CENTRALE
+  {lat:44.76,lng:6.54,cat:'heri',place:"Fressinières",region:"Hautes-Alpes",dates:"15 lug – 5 ago",work:"RENO · CULT",desc:"Dare the Mountains: progetto ad alta quota. Restauro in montagna con richiesta lettera motivazionale. Paesaggio alpino, lavoro fisico serio.",fee:"gratuita",vols:14,age:"18+"},
+  {lat:44.56,lng:6.43,cat:'heri',place:"Puy-Sanières",region:"Hautes-Alpes",dates:"22 lug – 12 ago",work:"RENO · ENVI",desc:"Roof Framework with a View: costruzione del tetto di un rifugio di montagna nel cuore delle Alpi del sud. Carpenteria, lavoro d'équipe.",fee:"gratuita",vols:14,age:"18+"},
+  {lat:45.57,lng:2.81,cat:'heri',place:"Mont-Dore",region:"Auvergne — Massiccio Centrale",dates:"12–26 giugno",work:"CONS · ARCH",desc:"Rediscover Tradition: archeologia sperimentale e tecniche costruttive tradizionali nel Massiccio Centrale. Imparare facendo.",fee:"gratuita (ESC)",vols:12,age:"18-30"},
+  // PIRENEI
+  {lat:42.82,lng:0.48,cat:'envi',place:"Jurvielle",region:"Haute-Garonne — Pirenei",dates:"12–26 giugno",work:"ENVI · MANU",desc:"Walk Like a Wolf: piccolo villaggio pirenaico e il suo sentiero degli innamorati. Manutenzione del percorso naturale tra boschi e pascoli.",fee:"gratuita (ESC)",vols:15,age:"18-30"},
+  {lat:43.11,lng:0.72,cat:'cult',place:"Saint-Gaudens",region:"Haute-Garonne — Pirenei",dates:"15–29 luglio",work:"SOCI · CULT · MANU",desc:"Solidarity in Action: vita nella comunità Emmaüs di Saint-Gaudens ai piedi dei Pirenei. Solidarietà concreta, economia alternativa.",fee:"gratuita (ESC)",vols:17,age:"18-30"},
+  // NORMANDIA / PICCARDIA
+  {lat:49.66,lng:2.86,cat:'heri',place:"Avricourt",region:"Picardie",dates:"4–19 settembre",work:"RENO · MANU",desc:"New Story for Old History: restauro della chiesa medievale di Avricourt in Piccardia. Pietra, calce, memoria storica.",fee:"gratuita",vols:10,age:"18+"},
+  // CHARENTE / ATLANTICO
+  {lat:45.99,lng:-1.09,cat:'heri',place:"Fouras-les-Bains",region:"Charente-Maritime",dates:"19 mag – 3 giu · 9 giu – 1 lug · 1–23 set",work:"RENO",desc:"Fort Vauban / Fortress of Fouras (3 turni): restauro di un forte del XVII secolo con vista sul leggendario Fort Boyard. Calce, pietra, storia.",fee:"gratuita",vols:12,age:"18+"},
+  // FESTIVAL
+  {lat:46.10,lng:3.15,cat:'cult',place:"Gannat",region:"Allier — Alvernia",dates:"15–29 luglio",work:"FEST · CULT",desc:"World Cultures Festival: festival internazionale delle culture del mondo. Accoglienza artisti, logistica, mediazione culturale.",fee:"gratuita (ESC)",vols:12,age:"18+"},
+  {lat:44.51,lng:0.07,cat:'cult',place:"Couthures-sur-Garonne",region:"Lot-et-Garonne",dates:"3–14 luglio",work:"CULT",desc:"International Journalism Festival: supporto al festival internazionale del giornalismo. Organizzazione, logistica, relazione con il pubblico.",fee:"gratuita",vols:12,age:"18+"},
+  // SAVOIA
+  {lat:45.60,lng:5.88,cat:'envi',place:"La Motte-Servolex",region:"Savoie",dates:"3–17 luglio",work:"ENVI · MANU",desc:"Lake, Mountains and Savoy: manutenzione di aree verdi in Savoia tra laghi e montagne. Lavoro fisico in uno dei paesaggi più belli di Francia.",fee:"gratuita",vols:13,age:"18+"},
+].forEach(c=>L.marker([c.lat,c.lng],{icon:pin(c.cat)}).addTo(map).bindPopup(pop(c),{maxWidth:300}));
+</script>
+</body>
+</html>
