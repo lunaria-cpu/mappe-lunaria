@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Campi ICJA 2026 — Lunaria</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Sans+Condensed:wght@400;600;700&family=Fira+Sans:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0f2952;--yellow:#FFD500;--pink:#cc3366;--green:#2e7d4f;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Fira Sans',sans-serif;}
+#map{width:100%;height:560px;}
+.map-tiles{filter:saturate(0.65) brightness(1.05);}
+.map-titlebar{background:var(--navy);color:#fff;padding:10px 18px;font-family:'Fira Sans Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;display:flex;justify-content:space-between;align-items:center;border-top:4px solid var(--navy);}
+.map-titlebar em{color:var(--yellow);font-style:normal;}
+.map-titlebar small{font-weight:300;font-size:11px;color:#8899bb;}
+.map-legend{background:#fff;padding:10px 18px;border-top:2px solid var(--yellow);display:flex;flex-wrap:wrap;gap:18px;font-family:'Fira Sans Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--navy);}
+.ld{display:flex;align-items:center;gap:7px;}
+.leaflet-popup-content-wrapper{border-radius:3px;border-left:4px solid var(--navy);box-shadow:0 6px 24px rgba(0,0,0,.22);padding:0;overflow:hidden;}
+.leaflet-popup-content{margin:0!important;width:278px!important;}
+.pu-header{background:var(--navy);padding:7px 14px;}
+.pu-dates{font-family:'Fira Sans Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--yellow);display:block;}
+.pu-body{padding:11px 14px;}
+.pu-place{font-family:'Fira Sans Condensed',sans-serif;font-size:15px;font-weight:700;color:var(--navy);margin-bottom:2px;}
+.pu-region{font-size:10px;font-weight:600;color:#999;margin-bottom:5px;font-family:'Fira Sans Condensed',sans-serif;letter-spacing:.5px;text-transform:uppercase;}
+.pu-work{font-size:10px;font-weight:700;color:var(--pink);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;}
+.pu-desc{font-size:12px;color:#444;line-height:1.55;}
+.pu-fee{margin-top:8px;font-size:11px;font-weight:700;color:var(--navy);font-family:'Fira Sans Condensed',sans-serif;}
+.pu-fee span{color:var(--green);}
+</style>
+</head>
+<body>
+<div class="map-titlebar">
+  CAMPI DI VOLONTARIATO — <em>&nbsp;ICJA GERMANIA 2026</em>
+  <small>ICJA / Lunaria · tutti gratuiti · 18-26 anni</small>
+</div>
+<div id="map" role="application" aria-label="Mappa campi ICJA Germania 2026"></div>
+<div class="map-legend">
+  <div class="ld"><svg width="11" height="15" viewBox="0 0 11 15"><path d="M5.5 1C3 1 1 3 1 5.5c0 3.8 4.5 9 4.5 9s4.5-5.2 4.5-9C10 3 8 1 5.5 1z" fill="#cc3366"/><circle cx="5.5" cy="5.5" r="2.2" fill="#fff"/></svg>Pace / Arte / Memoria</div>
+  <div class="ld"><svg width="11" height="15" viewBox="0 0 11 15"><path d="M5.5 1C3 1 1 3 1 5.5c0 3.8 4.5 9 4.5 9s4.5-5.2 4.5-9C10 3 8 1 5.5 1z" fill="#2e7d4f"/><circle cx="5.5" cy="5.5" r="2.2" fill="#FFD500"/></svg>Ambiente / Agricoltura</div>
+  <div class="ld"><svg width="11" height="15" viewBox="0 0 11 15"><path d="M5.5 1C3 1 1 3 1 5.5c0 3.8 4.5 9 4.5 9s4.5-5.2 4.5-9C10 3 8 1 5.5 1z" fill="#0f2952"/><circle cx="5.5" cy="5.5" r="2.2" fill="#FFD500"/></svg>Comunità / Lavoro manuale</div>
+</div>
+
+<script>
+const map=L.map('map',{zoomControl:true,scrollWheelZoom:false,minZoom:5,maxZoom:14}).setView([51.5,10.0],6);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',maxZoom:19,className:'map-tiles'}).addTo(map);
+
+function pinIcon(type){
+  const colors={peace:['#cc3366','#fff'],envi:['#2e7d4f','#FFD500'],comm:['#0f2952','#FFD500']};
+  const[fill,dot]=colors[type]||colors.comm;
+  const id='sh'+Math.random().toString(36).slice(2,6);
+  return L.divIcon({className:'',html:`<div style="cursor:pointer;transition:transform .15s;transform-origin:bottom center" onmouseenter="this.style.transform='scale(1.3)'" onmouseleave="this.style.transform='scale(1)'"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="34" viewBox="0 0 26 34"><defs><filter id="${id}"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="rgba(0,0,0,.3)"/></filter></defs><path d="M13 2C7 2 2 7 2 13c0 8.5 11 20 11 20s11-11.5 11-20C24 7 19 2 13 2z" fill="${fill}" filter="url(#${id})"/><circle cx="13" cy="13" r="5" fill="${dot}" opacity=".95"/></svg></div>`,iconSize:[26,34],iconAnchor:[13,34],popupAnchor:[0,-36]});
+}
+
+function mkPopup(o){
+  return `<div class="pu-header"><span class="pu-dates">${o.dates}</span></div><div class="pu-body"><div class="pu-place">${o.place}</div><div class="pu-region">${o.region}</div><div class="pu-work">${o.work}</div><div class="pu-desc">${o.desc}</div><div class="pu-fee">Fee: <span>gratuita</span> · ${o.vols} volontarə · età 18-26</div></div>`;
+}
+
+const camps=[
+  {lat:52.36,lng:14.06,type:'peace',
+   place:"Neuendorf am Sande",region:"Brandeburgo — vicino Fürstenwalde",
+   dates:"11–25 luglio",work:"ART · EDU · STUD",
+   desc:"Bridging Past, Present and Future: costruzione di un festival internazionale (17-19 lug) con workshop su democrazia, memoria storica e dialogo interculturale. Arte come strumento politico.",
+   vols:10},
+
+  {lat:49.87,lng:8.65,type:'comm',
+   place:"Darmstadt — Jugendhof Bessunger Forst",region:"Assia",
+   dates:"27 giu – 11 lug",work:"CONS · MANU · SOCI",
+   desc:"Making Furniture in the Forest: progettazione e costruzione collettiva di mobili per la comunità giovanile sul bordo della foresta. Lavoro pratico e vita comunitaria.",
+   vols:12},
+
+  {lat:50.47,lng:10.70,type:'comm',
+   place:"Bedheim",region:"Turingia occidentale — vicino Coburgo",
+   dates:"26 set – 10 ott",work:"RENO · ENVI · STUD",
+   desc:"Cultural Center in Countryside: cura del castello di Bedheim e dei suoi spazi. Prato-frutteto, orto, lavori interni ed esterni in un centro sociale attivo.",
+   vols:12},
+
+  {lat:51.65,lng:7.35,type:'peace',
+   place:"Datteln",region:"Renania Settentrionale-Vestfalia",
+   dates:"15–29 agosto",work:"ART · STUD · CULT",
+   desc:"I Have a Dream: prima settimana dedicata all'arte sulla pace, con opere esposte pubblicamente. Seconda settimana escursioni e incontri su temi di pace e riconciliazione.",
+   vols:12},
+
+  {lat:52.11,lng:8.67,type:'comm',
+   place:"Herford",region:"Renania Settentrionale-Vestfalia",
+   dates:"15–29 agosto",work:"MANU · CONS · SOCI",
+   desc:"Encountering in Herford: creazione di un campo di tiro con l'arco, miglioramento dei sentieri, restauro del pavimento. Lavori pratici in un centro di incontro internazionale.",
+   vols:12},
+
+  {lat:50.90,lng:13.10,type:'envi',
+   place:"Gossberg",region:"Sassonia — Erzgebirge",
+   dates:"10–24 agosto",work:"AGRI · MANU · CONS",
+   desc:"Universitas in Farmhouse: Garden of Environment — campi per giocare e imparare. Stazioni educative sul contatto con la natura in un paesaggio collinare saxone.",
+   vols:12},
+
+  {lat:51.12,lng:7.35,type:'envi',
+   place:"Kleinkatern — Lichtpferdehof",region:"Bergisches Land, NRW",
+   dates:"1–15 agosto",work:"AGRI · ENVI · ARCH",
+   desc:"Horses and Ponies Farm: rifugi per cavalli, recinzioni dei prati, rimozione di piante invasive. Fattoria autosufficiente nella regione del Bergisches Land.",
+   vols:12},
+
+  {lat:52.36,lng:10.14,type:'peace',
+   place:"Sievershausen",region:"Bassa Sassonia — 30 km da Hannover",
+   dates:"3–17 agosto",work:"RENO · STUD · ART",
+   desc:"Peace Center Sievershausen: il centro si trova ai margini di un ex campo di battaglia (1553). Arte e studio sulla pace, restauro degli spazi, confronto con la memoria storica.",
+   vols:20},
+
+  {lat:51.97,lng:14.15,type:'peace',
+   place:"Jamlitz",region:"Brandeburgo — Lausitz",
+   dates:"15–30 agosto",work:"MANU · STUD · SOCI",
+   desc:"Past, Present and Future for Jamlitz Railway Station: recupero della stazione ferroviaria storica, vicino all'ex campo di lavoro nazista. Lavoro contro l'oblio, con la natura che riprende ciò che era.",
+   vols:14},
+
+  {lat:47.84,lng:7.73,type:'envi',
+   place:"Tunsel",region:"Baden-Württemberg — Foresta Nera",
+   dates:"25 lug – 8 ago",work:"AGRI · ENVI · STUD",
+   desc:"Market Gardening: ristrutturazione della cantina in terra usando la tecnica dell'argilla leggera. Orto biologico e autosufficienza in una piccola fattoria tra Foresta Nera e Vosgi.",
+   vols:8},
+
+  {lat:50.54,lng:8.56,type:'comm',
+   place:"Greifenstein — Zukunftsdorf Waldhof",region:"Assia centrale",
+   dates:"17 mag – 11 giu",work:"MANU · ENVI · CULT",
+   desc:"Hands-on in Community – Future Village: vita e lavoro nel Zukunftsdorf Waldhof, un villaggio comunitario sperimentale. Restauro edifici, partecipazione alla vita collettiva.",
+   vols:12},
+];
+
+camps.forEach(c=>{
+  L.marker([c.lat,c.lng],{icon:pinIcon(c.type)})
+    .addTo(map)
+    .bindPopup(mkPopup(c),{maxWidth:300});
+});
+</script>
+</body>
+</html>
