@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tutti i Workcamps 2026 — Lunaria</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.Default.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Sans+Condensed:wght@400;600;700&family=Fira+Sans:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root { --navy:#0f2952; --yellow:#FFD500; --pink:#cc3366; --green:#2e7d4f; --orange:#e67e22; --purple:#8e44ad; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Fira Sans',sans-serif;}
+#map{width:100%;height:580px;}
+.map-tiles{filter:saturate(0.6) brightness(1.05);}
+
+.map-titlebar{background:var(--navy);color:#fff;padding:10px 18px;font-family:'Fira Sans Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;display:flex;justify-content:space-between;align-items:center;border-top:4px solid var(--yellow);}
+.map-titlebar em{color:var(--yellow);font-style:normal;}
+.map-titlebar small{font-weight:300;font-size:11px;color:#8899bb;}
+
+.map-legend{background:#fff;padding:10px 18px;border-top:2px solid var(--yellow);display:flex;flex-wrap:wrap;gap:14px;font-family:'Fira Sans Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--navy);}
+.ld{display:flex;align-items:center;gap:6px;}
+
+/* Cluster personalizzato */
+.marker-cluster-small { background-color: rgba(15,41,82,.7) !important; }
+.marker-cluster-small div { background-color: rgba(15,41,82,.9) !important; color:#FFD500 !important; font-family:'Fira Sans Condensed',sans-serif; font-weight:800; }
+.marker-cluster-medium { background-color: rgba(204,51,102,.7) !important; }
+.marker-cluster-medium div { background-color: rgba(204,51,102,.9) !important; color:#fff !important; font-family:'Fira Sans Condensed',sans-serif; font-weight:800; }
+.marker-cluster-large { background-color: rgba(255,213,0,.8) !important; }
+.marker-cluster-large div { background-color: rgba(255,213,0,1) !important; color:#0f2952 !important; font-family:'Fira Sans Condensed',sans-serif; font-weight:800; }
+
+.leaflet-popup-content-wrapper{border-radius:3px;border-left:4px solid var(--navy);box-shadow:0 6px 24px rgba(0,0,0,.22);padding:0;overflow:hidden;}
+.leaflet-popup-content{margin:0!important;width:260px!important;}
+.pu-header{background:var(--navy);padding:6px 12px;}
+.pu-dates{font-family:'Fira Sans Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--yellow);display:block;}
+.pu-body{padding:10px 12px;}
+.pu-name{font-family:'Fira Sans Condensed',sans-serif;font-size:13px;font-weight:700;color:var(--navy);margin-bottom:2px;line-height:1.3;}
+.pu-place{font-size:10px;font-weight:600;color:#999;margin-bottom:5px;font-family:'Fira Sans Condensed',sans-serif;letter-spacing:.5px;text-transform:uppercase;}
+.pu-work{font-size:10px;font-weight:700;color:var(--pink);text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px;}
+.pu-info{font-size:11px;color:#555;font-family:'Fira Sans Condensed',sans-serif;font-weight:600;}
+.pu-info span{color:var(--green);}
+
+/* Filtri */
+.map-filters{background:#f8f6f2;padding:10px 18px;border-bottom:1px solid #e5e0d8;display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+.map-filters label{font-family:'Fira Sans Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--navy);margin-right:4px;}
+.filter-btn{padding:5px 12px;border-radius:50px;border:2px solid;font-family:'Fira Sans Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:all .15s;background:#fff;}
+.filter-btn.active{color:#fff;}
+.filter-btn[data-cat="all"]{border-color:var(--navy);color:var(--navy);}
+.filter-btn[data-cat="all"].active{background:var(--navy);}
+.filter-btn[data-cat="envi"]{border-color:var(--green);color:var(--green);}
+.filter-btn[data-cat="envi"].active{background:var(--green);}
+.filter-btn[data-cat="heri"]{border-color:var(--pink);color:var(--pink);}
+.filter-btn[data-cat="heri"].active{background:var(--pink);}
+.filter-btn[data-cat="soci"]{border-color:#3498db;color:#3498db;}
+.filter-btn[data-cat="soci"].active{background:#3498db;}
+.filter-btn[data-cat="fest"]{border-color:var(--orange);color:var(--orange);}
+.filter-btn[data-cat="fest"].active{background:var(--orange);}
+.map-count{font-family:'Fira Sans Condensed',sans-serif;font-size:11px;color:#888;margin-left:auto;}
+</style>
+</head>
+<body>
+
+<div class="map-titlebar">
+  TUTTI I WORKCAMPS — <em>&nbsp;MONDO 2026</em>
+  <small id="total-count">caricamento...</small>
+</div>
+
+<div class="map-filters">
+  <label>Filtra:</label>
+  <button class="filter-btn active" data-cat="all">Tutti</button>
+  <button class="filter-btn" data-cat="envi">Ambiente</button>
+  <button class="filter-btn" data-cat="heri">Patrimonio</button>
+  <button class="filter-btn" data-cat="soci">Sociale</button>
+  <button class="filter-btn" data-cat="fest">Festival</button>
+  <span class="map-count" id="shown-count"></span>
+</div>
+
+<div id="map" role="application" aria-label="Mappa mondiale workcamps 2026"></div>
+
+<div class="map-legend">
+  <div class="ld"><svg width="10" height="10" viewBox="0 0 10 10"><circle cx="5" cy="5" r="5" fill="#2e7d4f"/></svg>Ambiente / Natura</div>
+  <div class="ld"><svg width="10" height="10" viewBox="0 0 10 10"><circle cx="5" cy="5" r="5" fill="#cc3366"/></svg>Patrimonio / Cultura</div>
+  <div class="ld"><svg width="10" height="10" viewBox="0 0 10 10"><circle cx="5" cy="5" r="5" fill="#3498db"/></svg>Sociale / Educazione</div>
+  <div class="ld"><svg width="10" height="10" viewBox="0 0 10 10"><circle cx="5" cy="5" r="5" fill="#e67e22"/></svg>Festival</div>
+  <div class="ld"><svg width="10" height="10" viewBox="0 0 10 10"><circle cx="5" cy="5" r="5" fill="#0f2952"/></svg>Altro</div>
+</div>
+
+<script>
+const catColors = {
+  envi:'#2e7d4f', heri:'#cc3366', soci:'#3498db', fest:'#e67e22', other:'#0f2952'
+};
+
+const map = L.map('map',{zoomControl:true,scrollWheelZoom:false,minZoom:2,maxZoom:14}).setView([45,15],3);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+  attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+  maxZoom:19, className:'map-tiles'
+}).addTo(map);
+
+function pinIcon(cat){
+  const fill = catColors[cat] || catColors.other;
+  const id = 'p'+Math.random().toString(36).slice(2,5);
+  return L.divIcon({
+    className:'',
+    html:`<svg xmlns="http://www.w3.org/2000/svg" width="18" height="24" viewBox="0 0 26 34"><defs><filter id="${id}"><feDropShadow dx="0" dy="1" stdDeviation="1.5" flood-color="rgba(0,0,0,.35)"/></filter></defs><path d="M13 2C7 2 2 7 2 13c0 8.5 11 20 11 20s11-11.5 11-20C24 7 19 2 13 2z" fill="${fill}" filter="url(#${id})"/><circle cx="13" cy="13" r="5" fill="rgba(255,255,255,.8)"/></svg>`,
+    iconSize:[18,24], iconAnchor:[9,24], popupAnchor:[0,-26]
+  });
+}
+
+function mkPopup(d){
+  const fee = (d.fee && d.fee!='0') ? d.fee+'€' : 'gratuita';
+  return `<div class="pu-header"><span class="pu-dates">${d.dates.replace(/-/g,'/')}</span></div>
+    <div class="pu-body">
+      <div class="pu-name">${d.name}</div>
+      <div class="pu-place">${d.place} — ${d.country}</div>
+      <div class="pu-work">${d.work}</div>
+      <div class="pu-info">Età ${d.age} · ${d.vols} vol · Fee: <span>${fee}</span></div>
+    </div>`;
+}
+
+// Cluster groups per categoria
+const clusters = {};
+const catList = ['all','envi','heri','soci','fest','other'];
+catList.forEach(c => {
+  clusters[c] = L.markerClusterGroup({
+    maxClusterRadius: 40,
+    spiderfyOnMaxZoom: true,
+    showCoverageOnHover: false,
+    zoomToBoundsOnClick: true,
+  });
+});
+
+// Sarà popolato dopo caricamento dati
+let allMarkers = [];
+
+function buildMarkers(data){
+  data.forEach(d => {
+    const marker = L.marker([d.lat, d.lng], {icon: pinIcon(d.cat)})
+      .bindPopup(mkPopup(d), {maxWidth:280});
+    marker._cat = d.cat;
+    allMarkers.push(marker);
+    clusters['all'].addLayer(marker);
+  });
+  map.addLayer(clusters['all']);
+  document.getElementById('total-count').textContent = data.length + ' progetti · ' + [...new Set(data.map(d=>d.country))].length + ' paesi';
+  document.getElementById('shown-count').textContent = data.length + ' mostrati';
+}
+
+// Filtri
+let currentCat = 'all';
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', function(){
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    this.classList.add('active');
+    currentCat = this.dataset.cat;
+    
+    map.removeLayer(clusters['all']);
+    Object.keys(clusters).forEach(k => { if(k!='all') map.removeLayer(clusters[k]); });
+    
+    if(currentCat === 'all'){
+      map.addLayer(clusters['all']);
+      document.getElementById('shown-count').textContent = allMarkers.length + ' mostrati';
+    } else {
+      // Build filtered cluster on demand
+      if(!clusters[currentCat]._alreadyBuilt){
+        allMarkers.filter(m => m._cat === currentCat).forEach(m => {
+          clusters[currentCat].addLayer(m);
+        });
+        clusters[currentCat]._alreadyBuilt = true;
+      }
+      map.addLayer(clusters[currentCat]);
+      const n = allMarkers.filter(m => m._cat === currentCat).length;
+      document.getElementById('shown-count').textContent = n + ' mostrati';
+    }
+  });
+});
+
+// Carica dati
+</script>
+<script src="pef_data.js"></script>
+<script>
+buildMarkers(PEF_DATA);
+</script>
+</body>
+</html>
