@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Volontariato Kenya 2026 — Lunaria</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Sans+Condensed:wght@400;700&family=Fira+Sans:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root{--navy:#0f2952;--yellow:#FFD500;--pink:#cc3366;--green:#2e7d4f;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Fira Sans',sans-serif;}
+#map{width:100%;height:520px;}
+.map-tiles{filter:saturate(0.65) brightness(1.05);}
+.map-titlebar{background:var(--navy);color:#fff;padding:10px 18px;font-family:'Fira Sans Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;display:flex;justify-content:space-between;align-items:center;border-top:4px solid var(--navy);}
+.map-titlebar em{color:var(--yellow);font-style:normal;}
+.map-titlebar small{font-weight:300;font-size:11px;color:#8899bb;}
+.map-legend{background:#fff;padding:10px 18px;border-top:2px solid var(--yellow);display:flex;flex-wrap:wrap;gap:14px;font-family:'Fira Sans Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--navy);}
+.ld{display:flex;align-items:center;gap:7px;}
+.leaflet-popup-content-wrapper{border-radius:3px;border-left:4px solid var(--navy);box-shadow:0 6px 24px rgba(0,0,0,.22);padding:0;overflow:hidden;}
+.leaflet-popup-content{margin:0!important;width:278px!important;}
+.ph{background:var(--navy);padding:7px 14px;}
+.pd{font-family:'Fira Sans Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--yellow);display:block;}
+.pb{padding:11px 14px;}
+.pp{font-family:'Fira Sans Condensed',sans-serif;font-size:15px;font-weight:700;color:var(--navy);margin-bottom:2px;}
+.pr{font-size:10px;font-weight:600;color:#999;margin-bottom:5px;font-family:'Fira Sans Condensed',sans-serif;letter-spacing:.5px;text-transform:uppercase;}
+.pw{font-size:10px;font-weight:700;color:var(--pink);text-transform:uppercase;letter-spacing:.8px;margin-bottom:6px;}
+.pde{font-size:12px;color:#444;line-height:1.55;}
+.pf{margin-top:8px;font-size:11px;font-weight:700;color:var(--navy);font-family:'Fira Sans Condensed',sans-serif;}
+.pf span{color:var(--green);}
+</style>
+</head>
+<body>
+<div class="map-titlebar">
+  VOLONTARIATO KENYA — <em>&nbsp;2026</em>
+  <small>KVDA / Lunaria</small>
+</div>
+<div id="map"></div>
+<div class="map-legend"><div class="ld"><svg width="11" height="15" viewBox="0 0 11 15"><path d="M5.5 1C3 1 1 3 1 5.5c0 3.8 4.5 9 4.5 9s4.5-5.2 4.5-9C10 3 8 1 5.5 1z" fill="#0f2952"/><circle cx="5.5" cy="5.5" r="2.2" fill="#FFD500"/></svg>Scuole / Bambini</div><div class="ld"><svg width="11" height="15" viewBox="0 0 11 15"><path d="M5.5 1C3 1 1 3 1 5.5c0 3.8 4.5 9 4.5 9s4.5-5.2 4.5-9C10 3 8 1 5.5 1z" fill="#2e7d4f"/><circle cx="5.5" cy="5.5" r="2.2" fill="#FFD500"/></svg>Ambiente / Costruzione</div><div class="ld"><svg width="11" height="15" viewBox="0 0 11 15"><path d="M5.5 1C3 1 1 3 1 5.5c0 3.8 4.5 9 4.5 9s4.5-5.2 4.5-9C10 3 8 1 5.5 1z" fill="#e67e22"/><circle cx="5.5" cy="5.5" r="2.2" fill="#fff"/></svg>Arte / Artigianato</div></div>
+<script>
+const map=L.map('map',{zoomControl:true,scrollWheelZoom:false,minZoom:5,maxZoom:13}).setView([0.5,36.5],6);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',maxZoom:19,className:'map-tiles'}).addTo(map);
+function pin(c){const cols={'envi':'#2e7d4f','heri':'#cc3366','soci':'#0f2952','cult':'#e67e22','farm':'#8e44ad'};const fill=cols[c]||'#0f2952';const dot=c==='envi'?'#FFD500':c==='farm'?'#FFD500':c==='soci'?'#FFD500':'#fff';const id='p'+Math.random().toString(36).slice(2,5);return L.divIcon({className:'',html:`<div style="cursor:pointer;transition:transform .15s;transform-origin:bottom center" onmouseenter="this.style.transform='scale(1.3)'" onmouseleave="this.style.transform='scale(1)'"><svg xmlns="http://www.w3.org/2000/svg" width="26" height="34" viewBox="0 0 26 34"><defs><filter id="${id}"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="rgba(0,0,0,.3)"/></filter></defs><path d="M13 2C7 2 2 7 2 13c0 8.5 11 20 11 20s11-11.5 11-20C24 7 19 2 13 2z" fill="${fill}" filter="url(#${id})"/><circle cx="13" cy="13" r="5" fill="${dot}" opacity=".95"/></svg></div>`,iconSize:[26,34],iconAnchor:[13,34],popupAnchor:[0,-36]});}
+function pop(o){const fee=o.fee?`Fee: <span>${o.fee}</span>`:`Fee: <span>gratuita</span>`;return `<div class="ph"><span class="pd">${o.dates}</span></div><div class="pb"><div class="pp">${o.place}</div><div class="pr">${o.region}</div><div class="pw">${o.work}</div><div class="pde">${o.desc}</div><div class="pf">${fee} · ${o.vols} vol · età ${o.age}</div></div>`;}
+const camps=[{"lat": -3.4, "lng": 38.55, "cat": "soci", "place": "Sagalla — Taita-Taveta", "region": "Costa, Kenya", "dates": "5–26 giugno", "work": "EDU · KIDS · MANU", "desc": "Gideon Mosi Primary School: insegnamento, educazione fisica, lavori manuali in una scuola primaria nella contea di Taita-Taveta.", "fee": "300 €", "vols": 20, "age": "21+"}, {"lat": 0.05, "lng": 34.72, "cat": "soci", "place": "Ebukobelo — Vihiga County", "region": "Kenya occidentale", "dates": "3–24 luglio", "work": "EDU · KIDS · MANU", "desc": "Ebukobelo Primary School: insegnamento, giochi, lavori manuali in una scuola primaria nel Kenya occidentale rurale.", "fee": "300 €", "vols": 20, "age": "21+"}, {"lat": -0.5, "lng": 34.16, "cat": "soci", "place": "Nyatike — Muhuru-Bay", "region": "Migori County, lago Vittoria", "dates": "3–24 luglio", "work": "EDU · KIDS", "desc": "Shining Star Ecdc and Orphans School: insegnamento e attività con bambini in una scuola per orfani sul lago Vittoria.", "fee": "300 €", "vols": 20, "age": "21+"}, {"lat": 0.1, "lng": 34.68, "cat": "envi", "place": "Emmabwi — Vihiga County", "region": "Kenya occidentale", "dates": "10–30 luglio", "work": "CONS · MANU · SOCI", "desc": "KVDA Volunteers Centre: costruzione del centro volontari KVDA. Produzione di mattoni, costruzione, trasporto acqua e sabbia.", "fee": "300 €", "vols": 20, "age": "21+"}, {"lat": 0.35, "lng": 34.72, "cat": "envi", "place": "Vihiga County", "region": "Kenya occidentale", "dates": "4–25 agosto", "work": "ENVI · MANU · SOCI", "desc": "Roddy's Eco Cover Environmental Program: agroforestazione, piantumazione di alberi, preparazione di vivai. Kenya occidentale.", "fee": "300 €", "vols": 20, "age": "21+"}, {"lat": -4.15, "lng": 39.65, "cat": "soci", "place": "Ramisi — Kwale County", "region": "Costa, Kenya", "dates": "7–28 agosto", "work": "RENO · KIDS · EDU", "desc": "Kanana Hill Academy: scavo delle fondamenta delle aule, costruzione. Una scuola sulla costa del Kenya che cresce mattone dopo mattone.", "fee": "300 €", "vols": 20, "age": "21+"}, {"lat": -0.53, "lng": 34.17, "cat": "soci", "place": "Mfangano Island — Lago Vittoria", "region": "Kenya occidentale", "dates": "7–28 agosto", "work": "KIDS · EDU · MANU", "desc": "St. James Community Orphans School: isola isolata nel lago Vittoria, scuola per orfani. Insegnamento, agricoltura, visite a domicilio.", "fee": "300 €", "vols": 20, "age": "21+"}, {"lat": -1.05, "lng": 34.98, "cat": "soci", "place": "Nyamanche — Kuria, Migori", "region": "Kenya sud-occidentale", "dates": "4–25 agosto", "work": "KIDS · EDU · MANU", "desc": "Nyamanche Primary School: scuola in una comunità dove l'accesso all'istruzione per le ragazze è ancora una sfida aperta.", "fee": "300 €", "vols": 20, "age": "21+"}, {"lat": 0.37, "lng": 34.93, "cat": "soci", "place": "Hamisi — Vihiga County", "region": "Kenya occidentale", "dates": "4–25 settembre", "work": "EDU · MANU · KIDS", "desc": "Happy Me Happy You: insegnamento, giochi, pasti, lavori manuali. Attività quotidiane in una comunità del Kenya occidentale.", "fee": "300 €", "vols": 20, "age": "21+"}, {"lat": -0.55, "lng": 35.1, "cat": "soci", "place": "Webuye — Bungoma County", "region": "Kenya occidentale", "dates": "7–28 agosto", "work": "KIDS · EDU · MANU", "desc": "Neema Good Shepherds School: insegnamento, lavoro manuale, visite nelle case della comunità per rafforzare il legame scuola-famiglia.", "fee": "300 €", "vols": 20, "age": "21+"}, {"lat": -0.9, "lng": 35.0, "cat": "cult", "place": "Nyamira County", "region": "Kenya occidentale", "dates": "4–25 settembre", "work": "ART · MANU · CULT", "desc": "NMCD: tessitura, lavoro artistico, formazione delle donne locali. Arte come strumento di sviluppo comunitario.", "fee": "300 €", "vols": 20, "age": "21+"}];
+camps.forEach(c=>L.marker([c.lat,c.lng],{icon:pin(c.cat)}).addTo(map).bindPopup(pop(c),{maxWidth:300}));
+</script>
+</body>
+</html>
